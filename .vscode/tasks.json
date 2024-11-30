@@ -1,0 +1,217 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+        {
+            "label": "[ARM Cortex-M33, CLANG] CMAKE",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}\\build\\clang_cortex_m33",
+                "env": {
+                    "PATH": "C:\\msys64\\mingw64\\bin"
+                }
+            },
+            "command": "cmake",
+            "args": [
+                "-DARM_CORTEX_M33=ON",
+                "-DUSE_CLANG=ON",
+                "-G",
+                "\"Ninja\"",
+                "-B",
+                "\"${workspaceRoot}\\build\\clang_cortex_m33\"",
+                "-S",
+                "\"${workspaceRoot}\\source\""
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "[ARM Cortex-M33, CLANG] BUILD",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}\\build\\clang_cortex_m33",
+                "env": {
+                    "PATH": "C:\\msys64\\mingw64\\bin"
+                }
+            },
+            "command": "cmake",
+            "args": [
+                "--build",
+                "\"${workspaceRoot}\\build\\clang_cortex_m33\""              
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "[ARM Cortex-M33, CLANG] CLEAN",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}\\build\\clang_cortex_m33",
+                "env": {
+                    "PATH": "C:\\msys64\\mingw64\\bin"
+                }
+            },
+            "command": "cmake",
+            "args": [
+                "--build",
+                "\"${workspaceRoot}\\build\\clang_cortex_m33\"",
+                "--target",      
+                "clean"
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "[ARM Cortex-M33, GCC] CMAKE",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}\\build\\gnu_cortex_m33",
+                "env": {
+                    "PATH": "C:\\msys64\\mingw64\\bin"
+                }
+            },
+            "command": "cmake",
+            "args": [
+                "-DARM_CORTEX_M33=ON",
+                "-G",
+                "\"Ninja\"",
+                "-B",
+                "\"${workspaceRoot}\\build\\gnu_cortex_m33\"",
+                "-S",
+                "\"${workspaceRoot}\\source\""
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "[ARM Cortex-M33, GCC] BUILD",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}\\build\\gnu_cortex_m33",
+                "env": {
+                    "PATH": "C:\\msys64\\mingw64\\bin"
+                }
+            },
+            "command": "cmake",
+            "args": [
+                "--build",
+                "\"${workspaceRoot}\\build\\gnu_cortex_m33\""              
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "[ARM Cortex-M33, GCC] CLEAN",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}\\build\\gnu_cortex_m33",
+                "env": {
+                    "PATH": "C:\\msys64\\mingw64\\bin"
+                }
+            },
+            "command": "cmake",
+            "args": [
+                "--build",
+                "\"${workspaceRoot}\\build\\gnu_cortex_m33\"",
+                "--target",      
+                "clean"
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "[ESP32] CMAKE",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}\\build",
+                "env": {
+                    "PATH": "C:\\msys64\\mingw64\\bin"
+                }
+            },
+            "command": "cmake",
+            "args": [
+                "-DXTENSA_LX6=ON",
+                "-G",
+                "\"Ninja\"",
+                "-B",
+                "\"${workspaceRoot}\\build\\xtensa_lx6\"",
+                "-S",
+                "\"${workspaceRoot}\\source\""
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "[ESP32] BUILD",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}",
+                "env": {
+                    "PATH": "C:\\msys64\\mingw64\\bin"
+                }
+            },
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build/xtensa_lx6"                
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "[ESP32] CLEAN",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}",
+                "env": {
+                    "PATH": "C:\\msys64\\mingw64\\bin"
+                }
+            },
+            "command": "cmake",
+            "args": [
+                "--build",
+                "\"${workspaceRoot}\\build\\xtensa_lx6\"",
+                "--target",      
+                "clean"
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "BUILD",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}",
+                "env": {
+                    "PATH": "C:\\msys64\\mingw64\\bin"
+                }
+            },
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build"                
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "CLEAN",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}",
+                "env": {
+                    "PATH": "C:\\msys64\\mingw64\\bin"
+                }
+            },
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build",
+                "--target",      
+                "clean"
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        }
+
+	]
+}
