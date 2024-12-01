@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.10...3.26)
 
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
@@ -18,7 +18,10 @@ list(APPEND GCC_PATH_LIST
 # find_program(MAKE_ABSOLUTE_PATH "mingw32-make.exe" ${MAKE_PATH_LIST})
 
 # set(CMAKE_MAKE_PROGRAM ${MAKE_ABSOLUTE_PATH} CACHE FILEPATH "" FORCE)
-if(ARM_CORTEX_M7)
+if(TESTS)
+    message(STATUS "Configuring for TESTS")
+    include(${CMAKE_SOURCE_DIR}/cmake/host-testing.cmake)
+elseif(ARM_CORTEX_M7)
     message(STATUS "Configuring for Cortex-M7")
 
     if(USE_CLANG)
@@ -51,23 +54,25 @@ endif()
 
 project(LIBCAT C CXX ASM)
 
-# set(CMAKE_C_OUTPUT_EXTENSION .o)
-# set(CMAKE_CXX_OUTPUT_EXTENSION .o)
-set(CMAKE_VERBOSE_MAKEFILE on)
+if(NOT TESTS)
+    # set(CMAKE_C_OUTPUT_EXTENSION .o)
+    # set(CMAKE_CXX_OUTPUT_EXTENSION .o)
+    set(CMAKE_VERBOSE_MAKEFILE on)
 
-# set(CMAKE_BUILD_TYPE Debug)
-set(CMAKE_BUILD_TYPE Release)
+    # set(CMAKE_BUILD_TYPE Debug)
+    set(CMAKE_BUILD_TYPE Release)
 
-find_program(CLANG_ABSOLUTE_PATH "clang-format.exe" ${CLANG_PATH_LIST})
+    find_program(CLANG_ABSOLUTE_PATH "clang-format.exe" ${CLANG_PATH_LIST})
 
-list(APPEND LIBCAT_SOURCE ${CMAKE_SOURCE_DIR}/libcat.c)
+    list(APPEND LIBCAT_SOURCE ${CMAKE_SOURCE_DIR}/libcat.c)
 
-# message(STATUS "LIBCAT_SOURCE contains: ${LIBCAT_SOURCE}")
+    # message(STATUS "LIBCAT_SOURCE contains: ${LIBCAT_SOURCE}")
 
-# Add include directories
-include_directories(${CMAKE_SOURCE_DIR}/Inc)
+    # Add include directories
+    include_directories(${CMAKE_SOURCE_DIR}/Inc)
 
-add_library(cat STATIC ${LIBCAT_SOURCE})
+    add_library(cat STATIC ${LIBCAT_SOURCE})
 
-# target_include_directories(my_library PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src )
-# target_compile_options(my_library PRIVATE -Wall -Wextra)
+    # target_include_directories(my_library PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src )
+    # target_compile_options(my_library PRIVATE -Wall -Wextra)
+endif()

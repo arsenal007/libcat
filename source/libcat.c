@@ -1,10 +1,22 @@
 #include <stdint.h>
 #include <libcat.h>
 
-#define MAX_LENGTH 16u
+static char cat_cmd_rx_buffer[ CAT_CMD_MAX_LENGTH ];  // Buffer for received commands
+static uint8_t cat_cmd_rx_index = 0;                  // Index of the current character in the buffer
 
-static char cat_cmd_rx_buffer[ MAX_LENGTH ];  // Buffer for received commands
-static uint8_t cat_cmd_rx_index = 0;          // Index of the current character in the buffer
+#if defined( TESTS )
+
+char* get_cat_cmd_rx_buffer( void )
+{
+  return cat_cmd_rx_buffer;
+}
+
+uint8_t get_cat_cmd_rx_index( void )
+{
+  return cat_cmd_rx_index;
+}
+
+#endif
 
 // Function to process the received command
 static void cat_decode_received_cmd( void )
@@ -22,16 +34,16 @@ void cat_receive_cmd( char cmd )
   cat_cmd_rx_index++;
 
   // Check for buffer overflow
-  if ( cat_cmd_rx_index >= MAX_LENGTH )
+  if ( cat_cmd_rx_index >= CAT_CMD_MAX_LENGTH )
   {
-    cat_cmd_rx_index = MAX_LENGTH - 1;  // Prevent overflow
+    cat_cmd_rx_index = CAT_CMD_MAX_LENGTH - 1;  // Prevent overflow
   }
 
   // If the end character ';' is received
   if ( cmd == ';' )
   {
-    cat_cmd_rx_buffer[ cat_cmd_rx_index - 1 ] = '\0';  // Add a null terminator
-    cat_decode_received_cmd();                         // Process the command
-    cat_cmd_rx_index = 0;                              // Reset the index for the next command
+    cat_cmd_rx_buffer[ cat_cmd_rx_index ] = '\0';
+    cat_decode_received_cmd();  // Process the command
+    cat_cmd_rx_index = 0;       // Reset the index for the next command
   }
 }

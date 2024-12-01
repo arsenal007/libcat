@@ -1,6 +1,62 @@
 {
-	"version": "2.0.0",
-	"tasks": [
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "[TESTS] RUN",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}\\build\\tests",
+                "env": {
+                    "PATH": "C:\\msys64\\mingw64\\bin"
+                }
+            },
+            "command": "ctest",
+            "args": [
+                "--output-on-failure",
+                "\"${workspaceRoot}\\build\\tests\""
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "[TESTS] BUILD",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}\\build\\tests",
+                "env": {
+                    "PATH": "C:\\msys64\\mingw64\\bin"
+                }
+            },
+            "command": "cmake",
+            "args": [
+                "--build",
+                "\"${workspaceRoot}\\build\\tests\""
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "[TESTS] CMAKE",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}\\build\\tests",
+                "env": {
+                    "PATH": "C:\\msys64\\mingw64\\bin"
+                }
+            },
+            "command": "cmake",
+            "args": [
+                "-DTESTS=ON",
+                "-G",
+                "\"Ninja\"",
+                "-B",
+                "\"${workspaceRoot}\\build\\tests\"",
+                "-S",
+                "\"${workspaceRoot}\\source\""
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
         {
             "label": "[ARM Cortex-M33, CLANG] CMAKE",
             "type": "shell",
@@ -36,7 +92,7 @@
             "command": "cmake",
             "args": [
                 "--build",
-                "\"${workspaceRoot}\\build\\clang_cortex_m33\""              
+                "\"${workspaceRoot}\\build\\clang_cortex_m33\""
             ],
             "problemMatcher": [],
             "group": "build"
@@ -54,7 +110,7 @@
             "args": [
                 "--build",
                 "\"${workspaceRoot}\\build\\clang_cortex_m33\"",
-                "--target",      
+                "--target",
                 "clean"
             ],
             "problemMatcher": [],
@@ -94,7 +150,7 @@
             "command": "cmake",
             "args": [
                 "--build",
-                "\"${workspaceRoot}\\build\\gnu_cortex_m33\""              
+                "\"${workspaceRoot}\\build\\gnu_cortex_m33\""
             ],
             "problemMatcher": [],
             "group": "build"
@@ -112,7 +168,7 @@
             "args": [
                 "--build",
                 "\"${workspaceRoot}\\build\\gnu_cortex_m33\"",
-                "--target",      
+                "--target",
                 "clean"
             ],
             "problemMatcher": [],
@@ -152,7 +208,7 @@
             "command": "cmake",
             "args": [
                 "--build",
-                "build/xtensa_lx6"                
+                "build/xtensa_lx6"
             ],
             "problemMatcher": [],
             "group": "build"
@@ -170,7 +226,7 @@
             "args": [
                 "--build",
                 "\"${workspaceRoot}\\build\\xtensa_lx6\"",
-                "--target",      
+                "--target",
                 "clean"
             ],
             "problemMatcher": [],
@@ -188,7 +244,7 @@
             "command": "cmake",
             "args": [
                 "--build",
-                "build"                
+                "build"
             ],
             "problemMatcher": [],
             "group": "build"
@@ -206,12 +262,11 @@
             "args": [
                 "--build",
                 "build",
-                "--target",      
+                "--target",
                 "clean"
             ],
             "problemMatcher": [],
             "group": "build"
         }
-
-	]
+    ]
 }
