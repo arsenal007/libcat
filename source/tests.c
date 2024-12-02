@@ -110,16 +110,111 @@ void test_reset_after_processing( void )
   TEST_ASSERT_EQUAL_UINT8( 3, get_cat_cmd_rx_index() );
 }
 
-// Основна функція тестування
+void test_buffer_and_command_are_same_equal( void )
+{
+  uint8_t buffer[] = { 'A', 'B', 'C' };
+  uint8_t command[] = { 'A', 'B', 'C' };
+
+  // Should return 1 (match)
+  TEST_ASSERT_EQUAL_UINT8( 1, test_buffer_and_command_are_same( buffer, command, 3 ) );
+}
+
+void test_buffer_and_command_are_same_not_equal( void )
+{
+  uint8_t buffer[] = { 'A', 'B', 'C' };
+  uint8_t command[] = { 'A', 'B', 'D' };
+
+  // Should return 0 (no match)
+  TEST_ASSERT_EQUAL_UINT8( 0, test_buffer_and_command_are_same( buffer, command, 3 ) );
+}
+
+void test_buffer_and_command_are_same_partial_match( void )
+{
+  uint8_t buffer[] = { 'A', 'B', 'C' };
+  uint8_t command[] = { 'A', 'B' };
+
+  // Should return 0 (no match, lengths differ)
+  TEST_ASSERT_EQUAL_UINT8( 1, test_buffer_and_command_are_same( buffer, command, 2 ) );
+}
+
+// Add tests for test_copy
+void test_copy_full( void )
+{
+  uint8_t dst[ 5 ] = { 0 };
+  const char src[] = "HELLO";
+
+  test_copy( dst, src, 5 );
+
+  // Destination should match source
+  TEST_ASSERT_EQUAL_UINT8_ARRAY( src, dst, 5 );
+}
+
+void test_copy_partial( void )
+{
+  uint8_t dst[ 5 ] = { 0 };
+  const char src[] = "HELLO";
+
+  test_copy( dst, src, 3 );
+
+  // Only first 3 characters should be copied
+  TEST_ASSERT_EQUAL_UINT8( 'H', dst[ 0 ] );
+  TEST_ASSERT_EQUAL_UINT8( 'E', dst[ 1 ] );
+  TEST_ASSERT_EQUAL_UINT8( 'L', dst[ 2 ] );
+  TEST_ASSERT_EQUAL_UINT8( 0, dst[ 3 ] );
+  TEST_ASSERT_EQUAL_UINT8( 0, dst[ 4 ] );
+}
+
+// Add tests for test_set
+void test_set_full( void )
+{
+  uint8_t dst[ 5 ] = { 0 };
+
+  test_set( dst, 0xFF, 5 );
+
+  // All elements should be set to 0xFF
+  for ( int i = 0; i < 5; i++ )
+  {
+    TEST_ASSERT_EQUAL_UINT8( 0xFF, dst[ i ] );
+  }
+}
+
+void test_set_partial( void )
+{
+  uint8_t dst[ 5 ] = { 0 };
+
+  test_set( dst, 0xAA, 3 );
+
+  // Only first 3 elements should be set to 0xAA
+  TEST_ASSERT_EQUAL_UINT8( 0xAA, dst[ 0 ] );
+  TEST_ASSERT_EQUAL_UINT8( 0xAA, dst[ 1 ] );
+  TEST_ASSERT_EQUAL_UINT8( 0xAA, dst[ 2 ] );
+  TEST_ASSERT_EQUAL_UINT8( 0, dst[ 3 ] );
+  TEST_ASSERT_EQUAL_UINT8( 0, dst[ 4 ] );
+}
+
 int main( void )
 {
   UNITY_BEGIN();
 
+  // cat_receive_cmd
   RUN_TEST( test_receive_full_command );
   RUN_TEST( test_receive_multiple_commands );
   RUN_TEST( test_buffer_overflow );
   RUN_TEST( test_incomplete_command );
   RUN_TEST( test_reset_after_processing );
+
+  // compare_command
+  RUN_TEST( test_buffer_and_command_are_same_equal );
+  RUN_TEST( test_buffer_and_command_are_same_not_equal );
+  RUN_TEST( test_buffer_and_command_are_same_partial_match );
+
+  // Add tests for test_copy
+  RUN_TEST( test_copy_full );
+  RUN_TEST( test_copy_partial );
+
+  // Add tests for test_set
+  RUN_TEST( test_set_full );
+  RUN_TEST( test_set_partial );
 
   return UNITY_END();
 }

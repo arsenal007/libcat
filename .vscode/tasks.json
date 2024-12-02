@@ -2,6 +2,25 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "[TESTS] CLEAN",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}\\build\\tests",
+                "env": {
+                    "PATH": "C:\\msys64\\mingw64\\bin"
+                }
+            },
+            "command": "cmake",
+            "args": [
+                "--build",
+                "\"${workspaceRoot}\\build\\tests\"",
+                "--target",
+                "clean"
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
             "label": "[TESTS] RUN",
             "type": "shell",
             "options": {
@@ -12,8 +31,7 @@
             },
             "command": "ctest",
             "args": [
-                "--output-on-failure",
-                "\"${workspaceRoot}\\build\\tests\""
+                "--output-on-failure"
             ],
             "problemMatcher": [],
             "group": "build"
