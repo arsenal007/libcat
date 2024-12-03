@@ -202,7 +202,15 @@ static void MockHandler( const uint8_t* params )
   mock_handler_called = 1;
   if ( params )
   {
-    
+  }
+}
+
+static void Mock_FA( const uint8_t* params )
+{
+  mock_handler_called = 1;
+  if ( params )
+  {
+    memcpy( mock_handler_params, params, 11 );
   }
 }
 
@@ -225,7 +233,7 @@ void test_cat_decode_received_cmd_no_params( void )
   };
 
   // Input buffer containing the command "IF;"
-  const char cmd_buffer[] = { 'I', 'F', ';', 0x20, 0x75 };
+  const char cmd_buffer[] = { 'I', 'F', ';' };
   uint8_t buffer_length = 3;
 
   // Call the wrapper function to decode and process the command
@@ -234,6 +242,31 @@ void test_cat_decode_received_cmd_no_params( void )
   // Verify that the command handler was called
   TEST_ASSERT_TRUE( mock_handler_called );
   // Since no parameters are expected, we do not need to verify mock_handler_params
+}
+
+void test_cat_decode_received_cmd_with_params( void )
+{
+  // Command table for the test
+  // CMD_FA is a command that expects 11 parameters
+  const uint8_t CMD_FA[] = { 'F', 'A' };
+  commands_table_t test_table[] = { { CMD_FA, 2, Mock_FA, 11 } };
+
+  // Input buffer containing the command "FA" followed by 11 parameters and a termination character ";"
+  const char cmd_buffer[] = { 'F', 'A', '0', '0', '0', '0', '7', '0', '0', '0', '0', '0', ';' };
+  uint8_t buffer_length = sizeof( cmd_buffer );
+
+  // Reset the mock state before the test
+  ResetMocks();
+
+  // Call the wrapper function to decode and process the command
+  test_cat_decode_received_cmd( cmd_buffer, buffer_length, test_table, 1 );
+
+  // Verify that the command handler was called
+  TEST_ASSERT_TRUE( mock_handler_called );
+
+  // Verify that the correct parameters were passed to the handler
+  // Parameters start at cmd_buffer[2] and have a length of 11
+  TEST_ASSERT_EQUAL_UINT8_ARRAY( cmd_buffer + 2, mock_handler_params, 11 );
 }
 
 int main( void )
@@ -262,6 +295,7 @@ int main( void )
 
   // Add tests for test_cat_decode_received_cmd
   RUN_TEST( test_cat_decode_received_cmd_no_params );
+  RUN_TEST( test_cat_decode_received_cmd_with_params );
 
   return UNITY_END();
 }
