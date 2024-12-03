@@ -1,4 +1,5 @@
 #include <unity.h>
+#include <commands_table_t.h>
 #include <libcat.h>
 #include <string.h>
 
@@ -192,6 +193,49 @@ void test_set_partial( void )
   TEST_ASSERT_EQUAL_UINT8( 0, dst[ 4 ] );
 }
 
+// Add tests for test_cat_decode_received_cmd
+static uint8_t mock_handler_called = 0;
+static uint8_t mock_handler_params[ CAT_CMD_MAX_LENGTH ];
+
+static void MockHandler( const uint8_t* params )
+{
+  mock_handler_called = 1;
+  if ( params )
+  {
+    
+  }
+}
+
+static void ResetMocks( void )
+{
+  mock_handler_called = 0;
+  test_set( mock_handler_params, 0, CAT_CMD_MAX_LENGTH );
+}
+
+void test_cat_decode_received_cmd_no_params( void )
+{
+  // Reset the mock state before the test
+  ResetMocks();
+
+  // Command table for the test
+  // CMD_IF is a command with no parameters (length 3)
+  const uint8_t CMD_IF[] = { 'I', 'F', ';' };
+  commands_table_t test_table[] = {
+    { CMD_IF, 3, MockHandler, 0 }  // The handler is MockHandler, and no parameters are expected
+  };
+
+  // Input buffer containing the command "IF;"
+  const char cmd_buffer[] = { 'I', 'F', ';', 0x20, 0x75 };
+  uint8_t buffer_length = 3;
+
+  // Call the wrapper function to decode and process the command
+  test_cat_decode_received_cmd( cmd_buffer, buffer_length, test_table, 1 );
+
+  // Verify that the command handler was called
+  TEST_ASSERT_TRUE( mock_handler_called );
+  // Since no parameters are expected, we do not need to verify mock_handler_params
+}
+
 int main( void )
 {
   UNITY_BEGIN();
@@ -215,6 +259,9 @@ int main( void )
   // Add tests for test_set
   RUN_TEST( test_set_full );
   RUN_TEST( test_set_partial );
+
+  // Add tests for test_cat_decode_received_cmd
+  RUN_TEST( test_cat_decode_received_cmd_no_params );
 
   return UNITY_END();
 }

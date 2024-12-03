@@ -1,16 +1,9 @@
 #include <stdint.h>
 #include <libcat.h>
+#include <commands_table_t.h>
 
 static char cat_cmd_rx_buffer[ CAT_CMD_MAX_LENGTH ];  // Buffer for received commands
 static uint8_t cat_cmd_rx_index = 0;                  // Index of the current character in the buffer
-
-typedef struct
-{
-  const uint8_t* command;                      // Pointer to the command bytes
-  uint8_t command_length;                      // Length of the command
-  void ( *handler )( const uint8_t* params );  // Handler for the command
-  uint8_t param_length;                        // Expected parameter length (0 if none required)
-} Command;
 
 // Example handlers
 static void Command_IF( const uint8_t* )
@@ -33,13 +26,13 @@ const uint8_t CMD_IF[] = { 'I', 'F', ';' };
 const uint8_t CMD_FA[] = { 'F', 'A' };
 const uint8_t CMD_MD[] = { 'M', 'D', ';' };
 
-static Command command_table[] = {
-  { CMD_IF, 3, Command_IF, 0 },
+static commands_table_t command_table_release[] = {
+  { CMD_IF, 3, Command_IF, 0 }, 
   { CMD_FA, 2, Command_FA, 11 },
   { CMD_MD, 3, Command_MD, 0 },
 };
 
-#define COMMAND_TABLE_SIZE ( sizeof( command_table ) / sizeof( command_table[ 0 ] ) )
+#define COMMAND_TABLE_SIZE 3
 
 // Function to compare a command in the buffer with a given command template
 // Parameters:
@@ -76,7 +69,7 @@ static void set( uint8_t* dst, uint8_t value, uint8_t size )
     dst[ i ] = value;
 }
 
-static void cat_decode_received_cmd( const char* cmd_buffer, uint8_t buffer_length, const Command* command_table,
+static void cat_decode_received_cmd( const char* cmd_buffer, uint8_t buffer_length, const commands_table_t* command_table,
                                      uint8_t command_table_size )
 {
   uint8_t buffer[ CAT_CMD_MAX_LENGTH ];
@@ -129,7 +122,7 @@ void cat_receive_cmd( char cmd )
   if ( cmd == ';' )
   {
     cat_cmd_rx_buffer[ cat_cmd_rx_index ] = '\0';  // needs for tests
-    cat_decode_received_cmd( cat_cmd_rx_buffer, cat_cmd_rx_index, command_table,
+    cat_decode_received_cmd( cat_cmd_rx_buffer, cat_cmd_rx_index, command_table_release,
                              COMMAND_TABLE_SIZE );  // Process the command
     cat_cmd_rx_index = 0;                           // Reset the index for the next command
   }
@@ -166,7 +159,7 @@ void test_set( uint8_t* dst, uint8_t value, uint8_t size )
 }
 
 // Wrapper for cat_decode_received_cmd
-void test_cat_decode_received_cmd( const char* cmd_buffer, uint8_t buffer_length, const Command* command_table,
+void test_cat_decode_received_cmd( const char* cmd_buffer, uint8_t buffer_length, const commands_table_t* command_table,
                                    uint8_t command_table_size )
 {
   cat_decode_received_cmd( cmd_buffer, buffer_length, command_table, command_table_size );
