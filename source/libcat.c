@@ -5,10 +5,86 @@
 static char cat_cmd_rx_buffer[ CAT_CMD_MAX_LENGTH ];  // Buffer for received commands
 static uint8_t cat_cmd_rx_index = 0;                  // Index of the current character in the buffer
 
-// Example handlers
+static int cat_frequency_10GHz = 0;
+static int cat_frequency_1GHz = 0;
+static int cat_frequency_100MHz = 0;
+static int cat_frequency_10MHz = 0;
+static int cat_frequency_1MHz = 4;
+static int cat_frequency_100kHz = 1;
+static int cat_frequency_10kHz = 2;
+static int cat_frequency_1kHz = 3;
+static int cat_frequency_100Hz = 4;
+static int cat_frequency_10Hz = 5;
+static int cat_frequency_1Hz = 6;
+static int8_t cat_RIT = 0;
+static int8_t cat_XIT = 0;
+static int8_t cat_MEM1 = 0;
+static int8_t cat_MEM2 = 0;
+static int8_t cat_RX = 0;
+static int8_t cat_TX = 0;
+static int8_t cat_VFO = 0;
+static int8_t cat_SCAN = 0;
+static int8_t cat_SIMPLEX = 0;
+static int8_t cat_CTCSS = 0;
+static int8_t cat_TONE1 = 0;
+static int8_t cat_TONE2 = 0;
+static int8_t cat_MODE = 2;
+
+// Helper function to convert a frequency component to a character
+static char convert_to_char( int value )
+{
+  return ( value + '0' );  // Convert integer (0-9) to corresponding ASCII character
+}
+
+static char cat_answer_rit_xit_13( int8_t rit, int8_t xit )
+{
+  // Check for RIT first
+  if ( rit > 0 )
+  {
+    return '+';
+  }
+  else if ( rit < 0 )
+  {
+    return '-';
+  }
+  // Check for XIT if RIT is not active
+  else if ( xit > 0 )
+  {
+    return '+';
+  }
+  else if ( xit < 0 )
+  {
+    return '-';
+  }
+  // Default case: no offset
+  return ' ';
+}
+
+// Command handler for "IF;" command
 static void Command_IF( const uint8_t* )
 {
-  // printf( "IF command executed\n" );
+  // Define the response buffer with the correct size
+  char cat_answer_buffer[ 21u ] = { 'I', 'F', '0', '0', '0', '0', '0', '0', '0', '0', '0',
+                                    '0', '0', '+', '0', '0', '0', '0', '0', '0', ';' };
+
+  // Fill frequency components in the response buffer
+  cat_answer_buffer[ 2 ] = convert_to_char( cat_frequency_10GHz );
+  cat_answer_buffer[ 3 ] = convert_to_char( cat_frequency_1GHz );
+  cat_answer_buffer[ 4 ] = convert_to_char( cat_frequency_100MHz );
+  cat_answer_buffer[ 5 ] = convert_to_char( cat_frequency_10MHz );
+  cat_answer_buffer[ 6 ] = convert_to_char( cat_frequency_1MHz );
+  cat_answer_buffer[ 7 ] = convert_to_char( cat_frequency_100kHz );
+  cat_answer_buffer[ 8 ] = convert_to_char( cat_frequency_10kHz );
+  cat_answer_buffer[ 9 ] = convert_to_char( cat_frequency_1kHz );
+  cat_answer_buffer[ 10 ] = convert_to_char( cat_frequency_100Hz );
+  cat_answer_buffer[ 11 ] = convert_to_char( cat_frequency_10Hz );
+  cat_answer_buffer[ 12 ] = convert_to_char( cat_frequency_1Hz );
+  cat_answer_buffer[ 13 ] = ' ';
+  cat_answer_buffer[ 14 ] = ' ';
+  cat_answer_buffer[ 15 ] = ' ';
+  cat_answer_buffer[ 16 ] = ' ';
+  cat_answer_buffer[ 17 ] = ' ';
+  cat_answer_rit_xit_13( cat_RIT, cat_XIT );
 }
 
 static void Command_FA( const uint8_t* )
@@ -27,7 +103,7 @@ const uint8_t CMD_FA[] = { 'F', 'A' };
 const uint8_t CMD_MD[] = { 'M', 'D', ';' };
 
 static commands_table_t command_table_release[] = {
-  { CMD_IF, 3, Command_IF, 0 }, 
+  { CMD_IF, 3, Command_IF, 0 },
   { CMD_FA, 2, Command_FA, 11 },
   { CMD_MD, 3, Command_MD, 0 },
 };
@@ -69,8 +145,8 @@ static void set( uint8_t* dst, uint8_t value, uint8_t size )
     dst[ i ] = value;
 }
 
-static void cat_decode_received_cmd( const char* cmd_buffer, uint8_t buffer_length, const commands_table_t* command_table,
-                                     uint8_t command_table_size )
+static void cat_decode_received_cmd( const char* cmd_buffer, uint8_t buffer_length,
+                                     const commands_table_t* command_table, uint8_t command_table_size )
 {
   uint8_t buffer[ CAT_CMD_MAX_LENGTH ];
   set( buffer, 0u, CAT_CMD_MAX_LENGTH );

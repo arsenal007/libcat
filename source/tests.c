@@ -269,6 +269,78 @@ void test_cat_decode_received_cmd_with_params( void )
   TEST_ASSERT_EQUAL_UINT8_ARRAY( cmd_buffer + 2, mock_handler_params, 11 );
 }
 
+void test_cat_decode_received_cmd_invalid_params( void )
+{
+  // Reset the mock state before the test
+  ResetMocks();
+
+  // Command table for the test
+  // CMD_FA is a command that expects 11 parameters
+  const uint8_t CMD_FA[] = { 'F', 'A' };
+  commands_table_t test_table[] = {
+    { CMD_FA, 2, Mock_FA, 11 }  // Command length is 2, and 11 parameters are required
+  };
+
+  // Input buffer containing the command "FA" with insufficient parameters and a termination character ";"
+  const char cmd_buffer[] = { 'F', 'A', '0', '0', ';' };
+  uint8_t buffer_length = 5;
+
+  // Call the wrapper function to decode and process the command
+  test_cat_decode_received_cmd( cmd_buffer, buffer_length, test_table, 1 );
+
+  // Verify that the command handler was not called
+  // The parameter length does not match the expected length, so the handler should not be invoked
+  TEST_ASSERT_FALSE( mock_handler_called );
+}
+
+void test_cat_decode_received_cmd_unknown_command( void )
+{
+  // Command table for the test
+  // CMD_IF is the only recognized command in this table
+  const uint8_t CMD_IF[] = { 'I', 'F', ';' };
+  commands_table_t test_table[] = {
+    { CMD_IF, 3, MockHandler, 0 }  // The handler is MockHandler, and no parameters are expected
+  };
+
+  // Input buffer containing an unknown command "XY;"
+  const char cmd_buffer[] = { 'X', 'Y', ';' };
+  uint8_t buffer_length = sizeof( cmd_buffer );
+
+  // Reset the mock state before the test
+  ResetMocks();
+
+  // Call the wrapper function to decode and process the command
+  test_cat_decode_received_cmd( cmd_buffer, buffer_length, test_table, 1 );
+
+  // Verify that the command handler was not called
+  // Since the command "XY;" does not exist in the command table, the handler should not be invoked
+  TEST_ASSERT_FALSE( mock_handler_called );
+}
+
+void test_cat_decode_received_cmd_empty_buffer( void )
+{
+  // Command table for the test
+  // CMD_IF is the only valid command in this table
+  const uint8_t CMD_IF[] = { 'I', 'F', ';' };
+  commands_table_t test_table[] = {
+    { CMD_IF, 3, MockHandler, 0 }  // The handler is MockHandler, and no parameters are expected
+  };
+
+  // Empty input buffer
+  const char cmd_buffer[] = {};
+  uint8_t buffer_length = 0;
+
+  // Reset the mock state before the test
+  ResetMocks();
+
+  // Call the wrapper function to decode and process the command
+  test_cat_decode_received_cmd( cmd_buffer, buffer_length, test_table, 1 );
+
+  // Verify that the command handler was not called
+  // Since the input buffer is empty, no commands can be matched, and the handler should not be invoked
+  TEST_ASSERT_FALSE( mock_handler_called );
+}
+
 int main( void )
 {
   UNITY_BEGIN();
@@ -296,6 +368,9 @@ int main( void )
   // Add tests for test_cat_decode_received_cmd
   RUN_TEST( test_cat_decode_received_cmd_no_params );
   RUN_TEST( test_cat_decode_received_cmd_with_params );
+  RUN_TEST( test_cat _decode_received_cmd_invalid_params );
+  RUN_TEST( test_cat_decode_received_cmd_unknown_command );
+  RUN_TEST( test_cat_decode_received_cmd_empty_buffer );
 
   return UNITY_END();
 }
