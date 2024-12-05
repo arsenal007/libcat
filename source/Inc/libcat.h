@@ -9,6 +9,8 @@ extern "C"
 
   void cat_receive_cmd( char );
 
+  void cat_init( void ( * )( const char*, size_t ) );
+
 #if defined( TESTS )
   char* get_cat_cmd_rx_buffer( void );
   uint8_t get_cat_cmd_rx_index( void );

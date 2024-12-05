@@ -18,17 +18,41 @@ static int cat_frequency_10Hz = 5;
 static int cat_frequency_1Hz = 6;
 static int8_t cat_RIT = 0;
 static int8_t cat_XIT = 0;
-static int8_t cat_MEM1 = 0;
-static int8_t cat_MEM2 = 0;
-static int8_t cat_RX = 0;
-static int8_t cat_TX = 0;
-static int8_t cat_VFO = 0;
-static int8_t cat_SCAN = 0;
-static int8_t cat_SIMPLEX = 0;
-static int8_t cat_CTCSS = 0;
-static int8_t cat_TONE1 = 0;
-static int8_t cat_TONE2 = 0;
-static int8_t cat_MODE = 2;
+// static int8_t cat_MEM1 = 0;
+// static int8_t cat_MEM2 = 0;
+// static int8_t cat_RX = 0;
+// static int8_t cat_TX = 0;
+// static int8_t cat_VFO = 0;
+// static int8_t cat_SCAN = 0;
+// static int8_t cat_SIMPLEX = 0;
+// static int8_t cat_CTCSS = 0;
+// static int8_t cat_TONE1 = 0;
+// static int8_t cat_TONE2 = 0;
+// static int8_t cat_MODE = 2;
+
+static int cat_rit_frequency_10kHz = 0;
+static int cat_rit_frequency_1kHz = 0;
+static int cat_rit_frequency_100Hz = 0;
+static int cat_rit_frequency_10Hz = 0;
+static int cat_rit_frequency_1Hz = 0;
+
+static int cat_xit_frequency_10kHz = 0;
+static int cat_xit_frequency_1kHz = 0;
+static int cat_xit_frequency_100Hz = 0;
+static int cat_xit_frequency_10Hz = 0;
+static int cat_xit_frequency_1Hz = 0;
+
+static int16_t cat_rit_frequency = 0;
+static int16_t cat_xit_frequency = 0;
+
+static int cat_step_frequency_1kHz = 0;
+static int cat_step_frequency_100Hz = 0;
+static int cat_step_frequency_10Hz = 0;
+static int cat_step_frequency_1Hz = 0;
+
+// static uint16_t cat_step = 0;
+
+static void ( *p_cat_write_answer_function )( const char*, size_t ) = NULL;
 
 // Helper function to convert a frequency component to a character
 static char convert_to_char( int value )
@@ -36,7 +60,7 @@ static char convert_to_char( int value )
   return ( value + '0' );  // Convert integer (0-9) to corresponding ASCII character
 }
 
-static char cat_answer_rit_xit_13( int8_t rit, int8_t xit )
+static char cat_answer_rit_xit_18( int8_t rit, int8_t xit )
 {
   // Check for RIT first
   if ( rit > 0 )
@@ -64,8 +88,14 @@ static char cat_answer_rit_xit_13( int8_t rit, int8_t xit )
 static void Command_IF( const uint8_t* )
 {
   // Define the response buffer with the correct size
-  char cat_answer_buffer[ 21u ] = { 'I', 'F', '0', '0', '0', '0', '0', '0', '0', '0', '0',
-                                    '0', '0', '+', '0', '0', '0', '0', '0', '0', ';' };
+  char cat_answer_buffer[ 38u ] = {
+    'I', 'F', '0', '0', '0', '0', '0', '0', '0', '0', '0',  // Frequency (11 characters)
+    '0', ' ', ' ', ' ', ' ', ' ',                           // Five spaces as reserved positions
+    '+', '0', '0', '0', '0',                                // RIT/XIT offset (5 characters: sign and 4 digits)
+    '0', '0', '0', '0', '0',                                // RIT/XIT parameters (5 characters)
+    '0', '0', '0', '0', '0',                                // Additional parameters (P4–P13 placeholders)
+    '0', '0', '0', ';'                                      // P14–P15 placeholders and terminating character
+  };
 
   // Fill frequency components in the response buffer
   cat_answer_buffer[ 2 ] = convert_to_char( cat_frequency_10GHz );
@@ -79,17 +109,79 @@ static void Command_IF( const uint8_t* )
   cat_answer_buffer[ 10 ] = convert_to_char( cat_frequency_100Hz );
   cat_answer_buffer[ 11 ] = convert_to_char( cat_frequency_10Hz );
   cat_answer_buffer[ 12 ] = convert_to_char( cat_frequency_1Hz );
-  cat_answer_buffer[ 13 ] = ' ';
-  cat_answer_buffer[ 14 ] = ' ';
-  cat_answer_buffer[ 15 ] = ' ';
-  cat_answer_buffer[ 16 ] = ' ';
-  cat_answer_buffer[ 17 ] = ' ';
-  cat_answer_rit_xit_13( cat_RIT, cat_XIT );
+  cat_answer_buffer[ 13 ] = convert_to_char( cat_step_frequency_1kHz );
+  cat_answer_buffer[ 14 ] = convert_to_char( cat_step_frequency_100Hz );
+  cat_answer_buffer[ 15 ] = convert_to_char( cat_step_frequency_10Hz );
+  cat_answer_buffer[ 16 ] = convert_to_char( cat_step_frequency_1Hz );
+  cat_answer_buffer[ 17 ] = cat_answer_rit_xit_18( cat_rit_frequency, cat_xit_frequency );
+  if ( cat_RIT )
+  {
+    cat_answer_buffer[ 18 ] = convert_to_char( cat_rit_frequency_10kHz );
+    cat_answer_buffer[ 19 ] = convert_to_char( cat_rit_frequency_1kHz );
+    cat_answer_buffer[ 20 ] = convert_to_char( cat_rit_frequency_100Hz );
+    cat_answer_buffer[ 21 ] = convert_to_char( cat_rit_frequency_10Hz );
+    cat_answer_buffer[ 22 ] = convert_to_char( cat_rit_frequency_1Hz );
+  }
+  else if ( cat_XIT )
+  {
+    cat_answer_buffer[ 18 ] = convert_to_char( cat_xit_frequency_10kHz );
+    cat_answer_buffer[ 19 ] = convert_to_char( cat_xit_frequency_1kHz );
+    cat_answer_buffer[ 20 ] = convert_to_char( cat_xit_frequency_100Hz );
+    cat_answer_buffer[ 21 ] = convert_to_char( cat_xit_frequency_10Hz );
+    cat_answer_buffer[ 22 ] = convert_to_char( cat_xit_frequency_1Hz );
+  }
+  else
+  {
+    cat_answer_buffer[ 18 ] = convert_to_char( 0 );
+    cat_answer_buffer[ 19 ] = convert_to_char( 0 );
+    cat_answer_buffer[ 20 ] = convert_to_char( 0 );
+    cat_answer_buffer[ 21 ] = convert_to_char( 0 );
+    cat_answer_buffer[ 22 ] = convert_to_char( 0 );
+  }
+
+  cat_answer_buffer[ 23 ] = convert_to_char( cat_RIT );  // P4 0: RIT OFF, 1: RIT ON
+  cat_answer_buffer[ 24 ] = convert_to_char( cat_XIT );  // P5 0: XIT OFF, 1: XIT ON
+  cat_answer_buffer[ 25 ] = convert_to_char( 0 );        // P6 channel bank number
+  cat_answer_buffer[ 26 ] = convert_to_char( 0 );        // P7 channel bank number
+  cat_answer_buffer[ 27 ] = convert_to_char( 0 );        // P7 channel bank number
+  cat_answer_buffer[ 28 ] = convert_to_char( 0 );        // P8 0: RX, 1: TX
+  cat_answer_buffer[ 29 ] = convert_to_char( 0 );        // P9 Operating mode. See MD commands for details
+  cat_answer_buffer[ 30 ] = convert_to_char( 0 );        // P10 See FR and FT commands
+  cat_answer_buffer[ 31 ] = convert_to_char( 0 );        // P11 Scan status. See SC command.
+  cat_answer_buffer[ 32 ] = convert_to_char( 0 );        // P12 Split operation status. See SP command
+  cat_answer_buffer[ 33 ] = convert_to_char( 0 );        // P13 0: OFF, 1: TONE, 2: CTCSS, 3: DCS
+  cat_answer_buffer[ 34 ] = convert_to_char( 0 );        // P14 Tone frequency. See TN command.
+  cat_answer_buffer[ 35 ] = convert_to_char( 0 );        // P14 Tone frequency. See TN command.
+  cat_answer_buffer[ 36 ] = convert_to_char( 0 );        // P15 Shift status. See OS command
+  cat_answer_buffer[ 37 ] = ';';
+
+  if ( p_cat_write_answer_function ) p_cat_write_answer_function( cat_answer_buffer, 38u );
 }
 
-static void Command_FA( const uint8_t* )
+static int symbol_to_int( uint8_t symbol )
 {
-  // printf( "Frequency set: %.*s\n", 11, params );
+  int number = symbol - '0';  // ASCII '0' corresponds to decimal 48
+  if ( ( number >= 0 ) && ( number <= 9 ) ) return number;
+  return -1;
+}
+
+static void Command_FA( const uint8_t* frequency_text )
+{
+  // Array of pointers to frequency variables
+  int* frequency_components[] = { &cat_frequency_10GHz, &cat_frequency_1GHz, &cat_frequency_100MHz,
+                                  &cat_frequency_10MHz, &cat_frequency_1MHz, &cat_frequency_100kHz,
+                                  &cat_frequency_10kHz, &cat_frequency_1kHz, &cat_frequency_100Hz,
+                                  &cat_frequency_10Hz,  &cat_frequency_1Hz };
+
+  // Iterate through frequency text and update frequency components
+  for ( int i = 0; i < 11; i++ )
+  {
+    int number = symbol_to_int( frequency_text[ i ] );
+    if ( number < 0 ) return;  // Invalid character, stop processing
+    *frequency_components[ i ] = number;
+  }
+  char fa_answer[] = { 'F', 'A', ';' };
+  if ( p_cat_write_answer_function ) p_cat_write_answer_function( fa_answer, 3u );
 }
 
 static void Command_MD( const uint8_t* )
@@ -202,6 +294,11 @@ void cat_receive_cmd( char cmd )
                              COMMAND_TABLE_SIZE );  // Process the command
     cat_cmd_rx_index = 0;                           // Reset the index for the next command
   }
+}
+
+void cat_init( void ( *p_answer_function )( const char*, size_t ) )
+{
+  p_cat_write_answer_function = p_answer_function;
 }
 
 #if defined( TESTS )

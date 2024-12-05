@@ -368,7 +368,7 @@ int main( void )
   // Add tests for test_cat_decode_received_cmd
   RUN_TEST( test_cat_decode_received_cmd_no_params );
   RUN_TEST( test_cat_decode_received_cmd_with_params );
-  RUN_TEST( test_cat _decode_received_cmd_invalid_params );
+  RUN_TEST( test_cat_decode_received_cmd_invalid_params );
   RUN_TEST( test_cat_decode_received_cmd_unknown_command );
   RUN_TEST( test_cat_decode_received_cmd_empty_buffer );
 
