@@ -13,6 +13,8 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/Unity ${CMAKE_BINARY_DIR}/Unity)
 set(TEST_SOURCE
     ${CMAKE_SOURCE_DIR}/tests.c
     ${CMAKE_SOURCE_DIR}/libcat.c
+    ${CMAKE_SOURCE_DIR}/fa_tests.c
+    ${CMAKE_SOURCE_DIR}/cat_decode_received_cmd_tests.c
 )
 
 # Create test executable

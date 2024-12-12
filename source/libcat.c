@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <libcat.h>
+
 #include <commands_table_t.h>
 
 static char cat_cmd_rx_buffer[ CAT_CMD_MAX_LENGTH ];  // Buffer for received commands
@@ -52,7 +53,26 @@ static int cat_step_frequency_1Hz = 0;
 
 // static uint16_t cat_step = 0;
 
-static void ( *p_cat_write_answer_function )( const char*, size_t ) = NULL;
+static uint32_t vfo_a_frequency = 0;
+// static uint32_t vfo_b_frequency = 0;
+
+static CAT_T callbacks;
+
+static uint32_t calculate_frequency( void )
+{
+  uint32_t frequency = 10000000000L * cat_frequency_10GHz;
+  frequency += 1000000000L * cat_frequency_1GHz;
+  frequency += 100000000L * cat_frequency_100MHz;
+  frequency += 10000000L * cat_frequency_10MHz;
+  frequency += 1000000L * cat_frequency_1MHz;
+  frequency += 100000L * cat_frequency_100kHz;
+  frequency += 10000L * cat_frequency_10kHz;
+  frequency += 1000L * cat_frequency_1kHz;
+  frequency += 100L * cat_frequency_100Hz;
+  frequency += 10L * cat_frequency_10Hz;
+  frequency += cat_frequency_1Hz;
+  return ( frequency );
+}
 
 // Helper function to convert a frequency component to a character
 static char convert_to_char( int value )
@@ -154,7 +174,7 @@ static void Command_IF( const uint8_t* )
   cat_answer_buffer[ 35 ] = convert_to_char( 0 );        // P14 Tone frequency. See TN command.
   cat_answer_buffer[ 36 ] = convert_to_char( 0 );        // P15 Shift status. See OS command
   cat_answer_buffer[ 37 ] = ';';
-
+  void ( *p_cat_write_answer_function )( const char*, size_t ) = callbacks.answer_function;
   if ( p_cat_write_answer_function ) p_cat_write_answer_function( cat_answer_buffer, 38u );
 }
 
@@ -177,11 +197,17 @@ static void Command_FA( const uint8_t* frequency_text )
   for ( int i = 0; i < 11; i++ )
   {
     int number = symbol_to_int( frequency_text[ i ] );
-    if ( number < 0 ) return;  // Invalid character, stop processing
+    if ( ( number < 0 ) && ( number > 9 ) ) return;  // Invalid character, stop processing
     *frequency_components[ i ] = number;
   }
+
   char fa_answer[] = { 'F', 'A', ';' };
+  void ( *p_cat_write_answer_function )( const char*, size_t ) = callbacks.answer_function;
   if ( p_cat_write_answer_function ) p_cat_write_answer_function( fa_answer, 3u );
+
+  vfo_a_frequency = calculate_frequency();
+  void ( *set_new_frequency_vfo_a )( uint32_t ) = callbacks.set_frequency_vfo_a;
+  if ( set_new_frequency_vfo_a ) set_new_frequency_vfo_a( vfo_a_frequency );
 }
 
 static void Command_MD( const uint8_t* )
@@ -196,7 +222,7 @@ const uint8_t CMD_MD[] = { 'M', 'D', ';' };
 
 static commands_table_t command_table_release[] = {
   { CMD_IF, 3, Command_IF, 0 },
-  { CMD_FA, 2, Command_FA, 11 },
+  { CMD_FA, 2, Command_FA, 12 },
   { CMD_MD, 3, Command_MD, 0 },
 };
 
@@ -289,16 +315,17 @@ void cat_receive_cmd( char cmd )
   // If the end character ';' is received
   if ( cmd == ';' )
   {
-    cat_cmd_rx_buffer[ cat_cmd_rx_index ] = '\0';  // needs for tests
+    // cat_cmd_rx_buffer[ cat_cmd_rx_index ] = '\0';  // needs for tests
     cat_decode_received_cmd( cat_cmd_rx_buffer, cat_cmd_rx_index, command_table_release,
                              COMMAND_TABLE_SIZE );  // Process the command
     cat_cmd_rx_index = 0;                           // Reset the index for the next command
   }
 }
 
-void cat_init( void ( *p_answer_function )( const char*, size_t ) )
+void cat_init( const CAT_T* p_init_struct )
 {
-  p_cat_write_answer_function = p_answer_function;
+  callbacks.answer_function = p_init_struct->answer_function;
+  callbacks.set_frequency_vfo_a = p_init_struct->set_frequency_vfo_a;
 }
 
 #if defined( TESTS )

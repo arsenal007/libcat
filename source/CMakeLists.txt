@@ -35,7 +35,7 @@ elseif(ARM_CORTEX_M33)
     if(USE_CLANG)
         set(CMAKE_TOOLCHAIN_FILE cmake/cortex-m33-clang.cmake)
     else()
-        set(CMAKE_TOOLCHAIN_FILE cmake/cortex-m33.cmake)
+        set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/cortex-m33.cmake)
     endif()
 elseif(XTENSA_LX6)
     message(STATUS "Configuring for Xtensa LX6")
@@ -64,7 +64,9 @@ if(NOT TESTS)
 
     find_program(CLANG_ABSOLUTE_PATH "clang-format.exe" ${CLANG_PATH_LIST})
 
-    list(APPEND LIBCAT_SOURCE ${CMAKE_SOURCE_DIR}/libcat.c)
+    list(APPEND LIBCAT_SOURCE
+        ${CMAKE_SOURCE_DIR}/libcat.c
+    )
 
     # message(STATUS "LIBCAT_SOURCE contains: ${LIBCAT_SOURCE}")
 

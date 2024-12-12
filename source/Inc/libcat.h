@@ -5,11 +5,20 @@
 extern "C"
 {
 #endif
+
+#include <stddef.h>
+
 #define CAT_CMD_MAX_LENGTH 16u
 
   void cat_receive_cmd( char );
 
-  void cat_init( void ( * )( const char*, size_t ) );
+  typedef struct
+  {
+    void ( *answer_function )( const char*, size_t );
+    void ( *set_frequency_vfo_a )( uint32_t );
+  } CAT_T;
+
+  void cat_init( const CAT_T* );
 
 #if defined( TESTS )
   char* get_cat_cmd_rx_buffer( void );

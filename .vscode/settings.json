@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "commands_table_t.h": "c",
+        "libcat.h": "c",
+        "fa_tests.h": "c",
+        "string.h": "c",
+        "stddef.h": "c"
+    }
+}
