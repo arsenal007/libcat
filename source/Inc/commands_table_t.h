@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-typedef struct
+typedef struct commands_table_t
 {
   const uint8_t* command;                      // Pointer to the command bytes
   uint8_t command_length;                      // Length of the command

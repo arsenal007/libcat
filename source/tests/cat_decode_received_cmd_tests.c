@@ -3,7 +3,7 @@
 #include <string.h>
 #include <libcat.h>  // Include your header file for cat_receive_cmd and cat_init
 #include <commands_table_t.h>
-#include <cat_decode_received_cmd_no_params_tests.h>
+#include <tests/cat_decode_received_cmd_no_params_tests.h>
 
 // Add tests for test_cat_decode_received_cmd
 static uint8_t mock_handler_called = 0;

@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <libcat.h>  // Include your header file for cat_receive_cmd and cat_init
-#include <fa_tests.h>
+#include <tests/fa_tests.h>
 
 // Mock callback functions and test variables
 static char test_answer_buffer[ CAT_CMD_MAX_LENGTH ];

@@ -2,8 +2,11 @@
 #include <commands_table_t.h>
 #include <libcat.h>
 #include <string.h>
-#include <fa_tests.h>
-#include <cat_decode_received_cmd_no_params_tests.h>
+#include <tests/fa_tests.h>
+#include <tests/cat_decode_received_cmd_no_params_tests.h>
+#include <tests/set_tests.h>
+#include <tests/if_tests.h>
+
 
 void setUp( void ) {}
 
@@ -147,33 +150,7 @@ void test_copy_partial( void )
   TEST_ASSERT_EQUAL_UINT8( 0, dst[ 4 ] );
 }
 
-// Add tests for test_set
-void test_set_full( void )
-{
-  uint8_t dst[ 5 ] = { 0 };
 
-  test_set( dst, 0xFF, 5 );
-
-  // All elements should be set to 0xFF
-  for ( int i = 0; i < 5; i++ )
-  {
-    TEST_ASSERT_EQUAL_UINT8( 0xFF, dst[ i ] );
-  }
-}
-
-void test_set_partial( void )
-{
-  uint8_t dst[ 5 ] = { 0 };
-
-  test_set( dst, 0xAA, 3 );
-
-  // Only first 3 elements should be set to 0xAA
-  TEST_ASSERT_EQUAL_UINT8( 0xAA, dst[ 0 ] );
-  TEST_ASSERT_EQUAL_UINT8( 0xAA, dst[ 1 ] );
-  TEST_ASSERT_EQUAL_UINT8( 0xAA, dst[ 2 ] );
-  TEST_ASSERT_EQUAL_UINT8( 0, dst[ 3 ] );
-  TEST_ASSERT_EQUAL_UINT8( 0, dst[ 4 ] );
-}
 
 int main( void )
 {
@@ -194,12 +171,10 @@ int main( void )
   RUN_TEST( test_copy_full );
   RUN_TEST( test_copy_partial );
 
-  // Add tests for test_set
-  RUN_TEST( test_set_full );
-  RUN_TEST( test_set_partial );
-
+  run_set_tests();
   run_cat_decode_received_cmd_no_params_tests();
   run_fa_tests();
+  run_if_tests();
 
   return UNITY_END();
 }
