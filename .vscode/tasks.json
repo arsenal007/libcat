@@ -215,6 +215,45 @@
             "group": "build"
         },
         {
+            "label": "[ESP32-C3] CMAKE",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}\\build\\esp32c3",
+                "env": {
+                    "PATH": "C:\\msys64\\mingw64\\bin"
+                }
+            },
+            "command": "cmake",
+            "args": [
+                "-DESP32_C3=ON",
+                "-G",
+                "\"Ninja\"",
+                "-B",
+                "\"${workspaceRoot}\\build\\esp32c3\"",
+                "-S",
+                "\"${workspaceRoot}\\source\""
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "[ESP32-C3] BUILD",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}\\build\\esp32c3",
+                "env": {
+                    "PATH": "C:\\msys64\\mingw64\\bin"
+                }
+            },
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceRoot}\\build\\esp32c3"
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
             "label": "[ESP32] BUILD",
             "type": "shell",
             "options": {
