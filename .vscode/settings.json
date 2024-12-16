@@ -6,6 +6,7 @@
         "string.h": "c",
         "stddef.h": "c",
         "cat_decode_received_cmd_no_params_tests.h": "c",
-        "if_tests.h": "c"
+        "if_tests.h": "c",
+        "id_tests.h": "c"
     }
 }

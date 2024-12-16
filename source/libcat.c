@@ -185,7 +185,7 @@ static int symbol_to_int( uint8_t symbol )
   return -1;
 }
 
-static void Command_FA( const uint8_t* frequency_text )
+static void Command_FA_Set( const uint8_t* frequency_text )
 {
   // Array of pointers to frequency variables
   int* frequency_components[] = { &cat_frequency_10GHz, &cat_frequency_1GHz, &cat_frequency_100MHz,
@@ -215,18 +215,61 @@ static void Command_MD( const uint8_t* )
   // printf( "MD command executed\n" );
 }
 
+static void Command_FA_Query( const uint8_t* )
+{
+  // Define the response buffer for FA; in the format FAxxxxxxxxxxx;
+  char fa_answer_buffer[ 15u ] = { 'F', 'A' };
+
+  // Array of frequency components to construct the response
+  int frequency_components[] = { cat_frequency_10GHz, cat_frequency_1GHz,   cat_frequency_100MHz, cat_frequency_10MHz,
+                                 cat_frequency_1MHz,  cat_frequency_100kHz, cat_frequency_10kHz,  cat_frequency_1kHz,
+                                 cat_frequency_100Hz, cat_frequency_10Hz,   cat_frequency_1Hz };
+
+  // Populate the frequency components into the response buffer
+  for ( int i = 0; i < 11; i++ )
+  {
+    fa_answer_buffer[ 2 + i ] = convert_to_char( frequency_components[ i ] );
+  }
+
+  // Append the termination character
+  fa_answer_buffer[ 13 ] = ';';
+
+  // Write the response using the callback
+  void ( *p_cat_write_answer_function )( const char*, size_t ) = callbacks.answer_function;
+  if ( p_cat_write_answer_function )
+  {
+    p_cat_write_answer_function( fa_answer_buffer, 14 );
+  }
+}
+
+static void Command_ID( const uint8_t* )
+{
+  // Define the response for the ID command
+  const char id_response[] = { 'I', 'D', '0', '1', '9', ';' };
+
+  // Call the answer callback to send the response
+  if ( callbacks.answer_function )
+  {
+    callbacks.answer_function( id_response, 6 );
+  }
+}
+
 // Command definitions
 const uint8_t CMD_IF[] = { 'I', 'F', ';' };
-const uint8_t CMD_FA[] = { 'F', 'A' };
+const uint8_t CMD_FA_SET[] = { 'F', 'A' };         // FAxxxxxxxxxxx for setting frequency
+const uint8_t CMD_FA_QUERY[] = { 'F', 'A', ';' };  // FA; for querying frequency
+const uint8_t CMD_ID[] = { 'I', 'D', ';' };
 const uint8_t CMD_MD[] = { 'M', 'D', ';' };
 
 static commands_table_t command_table_release[] = {
-  { CMD_IF, 3, Command_IF, 0 },
-  { CMD_FA, 2, Command_FA, 12 },
-  { CMD_MD, 3, Command_MD, 0 },
+  { CMD_IF, 3, Command_IF, 0 },              //
+  { CMD_FA_SET, 2, Command_FA_Set, 12 },     //
+  { CMD_FA_QUERY, 3, Command_FA_Query, 0 },  //
+  { CMD_ID, 3, Command_ID, 0 },              //
+  { CMD_MD, 3, Command_MD, 0 }               //
 };
 
-#define COMMAND_TABLE_SIZE 3
+#define COMMAND_TABLE_SIZE 5
 
 // Function to compare a command in the buffer with a given command template
 // Parameters:
@@ -251,6 +294,21 @@ static uint8_t buffer_and_command_are_same( const uint8_t* buffer, const uint8_t
   return 1;
 }
 
+static uint8_t is_table_entry( const uint8_t* buffer, uint8_t input_buffer_length,
+                               const commands_table_t* command_entry )
+{
+  const uint8_t* table_command = command_entry->command;
+  uint8_t table_cmd_length = command_entry->command_length;
+  uint8_t table_param_length = command_entry->param_length;
+
+  uint8_t expected_buffer_length = table_cmd_length + table_param_length;
+  if ( input_buffer_length == expected_buffer_length )
+  {
+    return buffer_and_command_are_same( buffer, table_command, table_cmd_length );
+  }
+  return 0;
+}
+
 static void copy( uint8_t* dst, const char* src, uint8_t size )
 {
   for ( uint8_t i = 0; i < size; i++ )
@@ -272,31 +330,13 @@ static void cat_decode_received_cmd( const char* cmd_buffer, uint8_t buffer_leng
 
   for ( uint8_t i = 0; i < command_table_size; i++ )
   {
-    const uint8_t* cmd = (const uint8_t*)command_table[ i ].command;
-    uint8_t cmd_length = command_table[ i ].command_length;
-
     // Compare the received command with the command in the table
-    if ( buffer_and_command_are_same( buffer, cmd, cmd_length ) == 1 )
+    if ( is_table_entry( buffer, buffer_length, &command_table[ i ] ) == 1 )
     {
-      // Calculate the length of the parameters
-      uint8_t param_length = buffer_length - cmd_length;
-
-      // Check if the parameter length matches the expected length
-      if ( param_length == command_table[ i ].param_length || command_table[ i ].param_length == 0 )
-      {
-        // Call the handler with the parameters
-        command_table[ i ].handler( buffer + cmd_length );
-        return;
-      }
-      else
-      {
-        // Invalid parameter length, return without action
-        return;
-      }
+      uint8_t cmd_length = command_table[ i ].command_length;
+      command_table[ i ].handler( buffer + cmd_length );
     }
   }
-
-  // If no matching command is found, you can handle it here (optional)
 }
 
 // Function to receive and assemble the command

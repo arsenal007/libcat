@@ -115,11 +115,55 @@ void test_FA_command_partial_frequency( void )
   TEST_ASSERT_FALSE( mock_frequency_set_called );
 }
 
+// Test: FA; command returns the correct frequency
+void test_FA_query_command_response( void )
+{
+  ResetMocks();
+
+  // Initialize the CAT system with the mock callback
+  CAT_T init_struct = { .answer_function = MockAnswerCallback, .set_frequency_vfo_a = MockSetFrequencyCallback };
+  cat_init( &init_struct );
+
+  cat_receive_cmd( ';' );
+
+  // Set the frequency using the FA command
+  cat_receive_cmd( 'F' );
+  cat_receive_cmd( 'A' );
+  cat_receive_cmd( '0' );  // 10GHz
+  cat_receive_cmd( '0' );  // 1GHz
+  cat_receive_cmd( '0' );  // 100MHz
+  cat_receive_cmd( '1' );  // 10MHz
+  cat_receive_cmd( '4' );  // 1MHz
+  cat_receive_cmd( '2' );  // 100kHz
+  cat_receive_cmd( '5' );  // 10kHz
+  cat_receive_cmd( '0' );  // 1kHz
+  cat_receive_cmd( '0' );  // 100Hz
+  cat_receive_cmd( '0' );  // 10Hz
+  cat_receive_cmd( '0' );  // 1Hz
+  cat_receive_cmd( ';' );
+
+  // Reset the mock state to prepare for the FA; query test
+  ResetMocks();
+
+  // Simulate querying the frequency with the FA; command
+  cat_receive_cmd( 'F' );
+  cat_receive_cmd( 'A' );
+  cat_receive_cmd( ';' );
+
+  // Expected response buffer for FA; command
+  const char expected_response[] = { 'F', 'A', '0', '0', '0', '1', '4', '2', '5', '0', '0', '0', '0', ';' };
+
+  // Verify the response buffer and callback invocation
+  TEST_ASSERT_TRUE( mock_answer_called );
+  TEST_ASSERT_EQUAL_MEMORY( expected_response, test_answer_buffer, 14 );
+}
+
 // Test runner for this file
 void run_fa_tests( void )
 {
+  RUN_TEST( test_FA_query_command_response );
+  // FA tests SET
   RUN_TEST( test_FA_command_sets_frequency );
   RUN_TEST( test_FA_command_invalid_characters );
   RUN_TEST( test_FA_command_partial_frequency );
-  // Add other FA-related tests here
 }

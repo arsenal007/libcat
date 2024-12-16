@@ -17,6 +17,7 @@ set(TEST_SOURCE
     ${CMAKE_SOURCE_DIR}/tests/cat_decode_received_cmd_tests.c
     ${CMAKE_SOURCE_DIR}/tests/set_tests.c
     ${CMAKE_SOURCE_DIR}/tests/if_tests.c
+    ${CMAKE_SOURCE_DIR}/tests/id_tests.c
 )
 
 # Create test executable
