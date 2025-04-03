@@ -1,7 +1,9 @@
 #include <stdint.h>
 #include <libcat.h>
-
 #include <commands_table_t.h>
+#include <tests/tests.h>
+
+#define CAT_CMD_MAX_LENGTH 20u  // Maximum length of the command buffer
 
 static char cat_cmd_rx_buffer[ CAT_CMD_MAX_LENGTH ];  // Buffer for received commands
 static uint8_t cat_cmd_rx_index = 0;                  // Index of the current character in the buffer

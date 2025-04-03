@@ -138,20 +138,17 @@
             "label": "[ARM Cortex-M33, GCC] CMAKE",
             "type": "shell",
             "options": {
-                "cwd": "${workspaceRoot}\\build\\gnu_cortex_m33",
-                "env": {
-                    "PATH": "C:\\msys64\\mingw64\\bin"
-                }
+                "cwd": "${workspaceRoot}/build/gnu_cortex_m33"
             },
             "command": "cmake",
             "args": [
                 "-DARM_CORTEX_M33=ON",
                 "-G",
-                "\"Ninja\"",
+                "Ninja",
                 "-B",
-                "\"${workspaceRoot}\\build\\gnu_cortex_m33\"",
+                "${workspaceRoot}/build/gnu_cortex_m33/",
                 "-S",
-                "\"${workspaceRoot}\\source\""
+                "${workspaceRoot}/source/"
             ],
             "problemMatcher": [],
             "group": "build"
@@ -160,15 +157,12 @@
             "label": "[ARM Cortex-M33, GCC] BUILD",
             "type": "shell",
             "options": {
-                "cwd": "${workspaceRoot}\\build\\gnu_cortex_m33",
-                "env": {
-                    "PATH": "C:\\msys64\\mingw64\\bin"
-                }
+                "cwd": "${workspaceRoot}/build/gnu_cortex_m33"
             },
             "command": "cmake",
             "args": [
                 "--build",
-                "\"${workspaceRoot}\\build\\gnu_cortex_m33\""
+                "${workspaceRoot}/build/gnu_cortex_m33/"
             ],
             "problemMatcher": [],
             "group": "build"
@@ -177,15 +171,12 @@
             "label": "[ARM Cortex-M33, GCC] CLEAN",
             "type": "shell",
             "options": {
-                "cwd": "${workspaceRoot}\\build\\gnu_cortex_m33",
-                "env": {
-                    "PATH": "C:\\msys64\\mingw64\\bin"
-                }
+                "cwd": "${workspaceRoot}/build/gnu_cortex_m33"
             },
             "command": "cmake",
             "args": [
                 "--build",
-                "\"${workspaceRoot}\\build\\gnu_cortex_m33\"",
+                "${workspaceRoot}/build/gnu_cortex_m33/",
                 "--target",
                 "clean"
             ],

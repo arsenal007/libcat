@@ -8,15 +8,11 @@ set(TRUSTZONE_FLAGS "-mcmse")  # Enable TrustZone if required
 set(VFP_FLAGS "-mfloat-abi=hard -mfpu=fpv5-sp-d16")  # Optional: Enable floating-point unit
 
 # Toolchain settings
-set(CMAKE_C_COMPILER    arm-none-eabi-gcc.exe)
-set(CMAKE_CXX_COMPILER  arm-none-eabi-g++.exe)
-set(AS                  arm-none-eabi-as.exe)
-set(AR                  arm-none-eabi-ar.exe)
+set(CMAKE_C_COMPILER    arm-none-eabi-gcc)
+set(CMAKE_CXX_COMPILER  arm-none-eabi-g++)
+set(AS                  arm-none-eabi-as)
+set(AR                  arm-none-eabi-ar)
 
-# Locate GCC tools (optional if paths are correctly set in the environment)
-find_program(GCC_PATH_ABSOLUTE ${CMAKE_C_COMPILER} ${GCC_PATH_LIST} NO_DEFAULT_PATH)
-get_filename_component(ADD_TO_PATH_GCC ${GCC_PATH_ABSOLUTE} PATH) 
-list(APPEND CMAKE_PROGRAM_PATH ${ADD_TO_PATH_GCC})
 
 # Compiler and assembler flags
 set(CMAKE_C_FLAGS   "${MCPU_FLAGS} ${VFP_FLAGS} ${TRUSTZONE_FLAGS} -Wall -fno-builtin -std=gnu11 -fdata-sections -ffunction-sections" CACHE INTERNAL "C compiler flags")
