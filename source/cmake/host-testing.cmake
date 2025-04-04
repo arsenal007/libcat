@@ -9,19 +9,20 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -std=c++11")
 # Add Unity for testing
 add_subdirectory(${CMAKE_SOURCE_DIR}/Unity ${CMAKE_BINARY_DIR}/Unity)
 
-# Test source
-set(TEST_SOURCE
-    ${CMAKE_SOURCE_DIR}/libcat.c
-    ${CMAKE_SOURCE_DIR}/tests/tests.c
-    ${CMAKE_SOURCE_DIR}/tests/fa_tests.c
-    ${CMAKE_SOURCE_DIR}/tests/cat_decode_received_cmd_tests.c
-    ${CMAKE_SOURCE_DIR}/tests/set_tests.c
-    ${CMAKE_SOURCE_DIR}/tests/if_tests.c
-    ${CMAKE_SOURCE_DIR}/tests/id_tests.c
-)
+
+
 
 # Create test executable
-add_executable(cat_tests ${TEST_SOURCE})
+add_executable(cat_tests)
+target_sources(cat_tests PRIVATE     
+${CMAKE_SOURCE_DIR}/libcat.c
+${CMAKE_SOURCE_DIR}/tests/tests.c
+${CMAKE_SOURCE_DIR}/tests/fa_tests.c
+${CMAKE_SOURCE_DIR}/tests/cat_decode_received_cmd_tests.c
+${CMAKE_SOURCE_DIR}/tests/set_tests.c
+${CMAKE_SOURCE_DIR}/tests/if_tests.c
+${CMAKE_SOURCE_DIR}/tests/id_tests.c
+)
 
 # Define macros for testing
 target_compile_definitions(cat_tests PRIVATE TESTS)

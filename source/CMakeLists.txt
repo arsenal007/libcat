@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.10...3.26)
 
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
-
 if(TESTS)
     message(STATUS "Configuring for TESTS")
     include(${CMAKE_SOURCE_DIR}/cmake/host-testing.cmake)
@@ -12,7 +11,7 @@ elseif(ARM_CORTEX_M7)
     if(USE_CLANG)
         set(CMAKE_TOOLCHAIN_FILE cmake/cortex-m7-clang.cmake)
     else()
-        set(CMAKE_TOOLCHAIN_FILE cmake/cortex-m7.cmake)
+        set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/cortex-m7.cmake)
     endif()
 elseif(ARM_CORTEX_M33)
     message(STATUS "Configuring for Cortex-M33")
@@ -22,6 +21,9 @@ elseif(ARM_CORTEX_M33)
     else()
         set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/cortex-m33.cmake)
     endif()
+elseif(ARM_CORTEX_M0PLUS)
+    message(STATUS "Configuring for Cortex-M0+")
+    set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/cortex-m0plus.cmake)
 elseif(XTENSA_LX6)
     message(STATUS "Configuring for Xtensa LX6")
     set(CMAKE_TOOLCHAIN_FILE cmake/xtensa-lx6.cmake)
@@ -47,22 +49,21 @@ if(NOT TESTS)
     set(CMAKE_VERBOSE_MAKEFILE ON)
     set(CMAKE_BUILD_TYPE Release)
 
-
     add_library(cat STATIC)
 
     target_sources(cat
         PRIVATE
-            ${CMAKE_SOURCE_DIR}/libcat.c
+        ${CMAKE_SOURCE_DIR}/libcat.c
     )
 
     target_include_directories(cat
         PUBLIC
-            ${CMAKE_SOURCE_DIR}/Inc
+        ${CMAKE_SOURCE_DIR}/Inc
     )
 
     target_include_directories(cat
         PUBLIC
-            ${CMAKE_SOURCE_DIR}/include
+        ${CMAKE_SOURCE_DIR}/include
     )
 
     install(TARGETS cat
@@ -75,5 +76,5 @@ if(NOT TESTS)
     install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/
         DESTINATION include
         FILES_MATCHING PATTERN "*.h"
-    )   
+    )
 endif()

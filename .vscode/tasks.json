@@ -135,6 +135,104 @@
             "group": "build"
         },
         {
+            "label": "[ARM Cortex-M0++, GCC] CMAKE",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}/build/gnu_cortex_m0plus"
+            },
+            "command": "cmake",
+            "args": [
+                "-DARM_CORTEX_M0PLUS=ON",
+                "-G",
+                "Ninja",
+                "-B",
+                "${workspaceRoot}/build/gnu_cortex_m0plus/",
+                "-S",
+                "${workspaceRoot}/source/"
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "[ARM Cortex-M0++, GCC] BUILD",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}/build/gnu_cortex_m0plus"
+            },
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceRoot}/build/gnu_cortex_m0plus/"
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "[ARM Cortex-M0++, GCC] CLEAN",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}/build/gnu_cortex_m0plus"
+            },
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceRoot}/build/gnu_cortex_m0plus/",
+                "--target",
+                "clean"
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "[ARM Cortex-M7, GCC] CMAKE",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}/build/gnu_cortex_m7"
+            },
+            "command": "cmake",
+            "args": [
+                "-DARM_CORTEX_M7=ON",
+                "-G",
+                "Ninja",
+                "-B",
+                "${workspaceRoot}/build/gnu_cortex_m7/",
+                "-S",
+                "${workspaceRoot}/source/"
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "[ARM Cortex-M7, GCC] BUILD",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}/build/gnu_cortex_m7"
+            },
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceRoot}/build/gnu_cortex_m7/"
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "[ARM Cortex-M7, GCC] CLEAN",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}/build/gnu_cortex_m7"
+            },
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceRoot}/build/gnu_cortex_m7/",
+                "--target",
+                "clean"
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
             "label": "[ARM Cortex-M33, GCC] CMAKE",
             "type": "shell",
             "options": {
