@@ -2,7 +2,7 @@
 #include <unity.h>
 #include <tests/set_tests.h>
 #include <libcat.h>
-
+#include <tests/tests.h>
 
 // Add tests for test_set
 void test_set_full( void )

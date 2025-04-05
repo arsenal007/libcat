@@ -3,10 +3,13 @@
 #include <libcat.h>
 #include <string.h>
 #include <tests/fa_tests.h>
+#include <tests/md_tests.h>
 #include <tests/cat_decode_received_cmd_no_params_tests.h>
 #include <tests/set_tests.h>
 #include <tests/if_tests.h>
+#include <tests/tests.h>
 
+#define CAT_CMD_MAX_LENGTH 20u  // Maximum length of the command buffer
 
 void setUp( void ) {}
 
@@ -150,8 +153,6 @@ void test_copy_partial( void )
   TEST_ASSERT_EQUAL_UINT8( 0, dst[ 4 ] );
 }
 
-
-
 int main( void )
 {
   UNITY_BEGIN();
@@ -175,6 +176,7 @@ int main( void )
   run_cat_decode_received_cmd_no_params_tests();
   run_fa_tests();
   run_if_tests();
+  run_md_tests();
 
   return UNITY_END();
 }

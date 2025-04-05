@@ -4,11 +4,11 @@
 #include <libcat.h>
 #include <tests/id_tests.h>
 
+#define CAT_CMD_MAX_LENGTH 20u  // Maximum length of the command buffer
 
 // Mock callback functions and test variables
 static char test_answer_buffer[ CAT_CMD_MAX_LENGTH ];
 static uint8_t mock_answer_called = 0;
-
 
 // Mock implementation of the answer callback
 static void MockAnswerCallback( const char* answer, size_t length )

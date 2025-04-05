@@ -11,14 +11,14 @@ static uint8_t cat_cmd_rx_index = 0;                  // Index of the current ch
 static int cat_frequency_10GHz = 0;
 static int cat_frequency_1GHz = 0;
 static int cat_frequency_100MHz = 0;
-static int cat_frequency_10MHz = 0;
+static int cat_frequency_10MHz = 1;
 static int cat_frequency_1MHz = 4;
-static int cat_frequency_100kHz = 1;
-static int cat_frequency_10kHz = 2;
-static int cat_frequency_1kHz = 3;
-static int cat_frequency_100Hz = 4;
-static int cat_frequency_10Hz = 5;
-static int cat_frequency_1Hz = 6;
+static int cat_frequency_100kHz = 0;
+static int cat_frequency_10kHz = 7;
+static int cat_frequency_1kHz = 4;
+static int cat_frequency_100Hz = 0;
+static int cat_frequency_10Hz = 0;
+static int cat_frequency_1Hz = 0;
 static int8_t cat_RIT = 0;
 static int8_t cat_XIT = 0;
 // static int8_t cat_MEM1 = 0;
@@ -31,7 +31,8 @@ static int8_t cat_XIT = 0;
 // static int8_t cat_CTCSS = 0;
 // static int8_t cat_TONE1 = 0;
 // static int8_t cat_TONE2 = 0;
-// static int8_t cat_MODE = 2;
+
+static uint8_t cat_MODE = 2;  // 1: LSB, 2: USB, 3: CW, 4: FM, 5: AM, 6: FSK, 7: CR-R, 8: Reserved, 9: FSK-R
 
 static int cat_rit_frequency_10kHz = 0;
 static int cat_rit_frequency_1kHz = 0;
@@ -107,7 +108,7 @@ static char cat_answer_rit_xit_18( int8_t rit, int8_t xit )
 }
 
 // Command handler for "IF;" command
-static void Command_IF( const uint8_t* )
+static void handle_IF_query( const uint8_t* )
 {
   // Define the response buffer with the correct size
   char cat_answer_buffer[ 38u ] = {
@@ -187,7 +188,7 @@ static int symbol_to_int( uint8_t symbol )
   return -1;
 }
 
-static void Command_FA_Set( const uint8_t* frequency_text )
+static void handle_FA_set_frequency( const uint8_t* frequency_text )
 {
   // Array of pointers to frequency variables
   int* frequency_components[] = { &cat_frequency_10GHz, &cat_frequency_1GHz, &cat_frequency_100MHz,
@@ -199,7 +200,7 @@ static void Command_FA_Set( const uint8_t* frequency_text )
   for ( int i = 0; i < 11; i++ )
   {
     int number = symbol_to_int( frequency_text[ i ] );
-    if ( ( number < 0 ) && ( number > 9 ) ) return;  // Invalid character, stop processing
+    if ( ( number < 0 ) || ( number > 9 ) ) return;  // Invalid character, stop processing
     *frequency_components[ i ] = number;
   }
 
@@ -212,12 +213,38 @@ static void Command_FA_Set( const uint8_t* frequency_text )
   if ( set_new_frequency_vfo_a ) set_new_frequency_vfo_a( vfo_a_frequency );
 }
 
-static void Command_MD( const uint8_t* )
+static void handle_MD_set_mode( const uint8_t* mode_text )
 {
-  // printf( "MD command executed\n" );
+  // Convert the mode text to an integer value
+  int number = symbol_to_int( mode_text[ 0 ] );
+  if ( ( number < 1 ) || ( number > 9 ) ) return;  // Invalid character, stop processing
+
+  // Set the mode based on the received value
+  cat_MODE = number;
+
+  // Prepare the response buffer
+  char md_answer_buffer[ 4u ] = { 'M', 'D', '0', ';' };
+  md_answer_buffer[ 2 ] = convert_to_char( cat_MODE );
+
+  // Send the response using the callback function
+  void ( *p_cat_write_answer_function )( const char*, size_t ) = callbacks.answer_function;
+  if ( p_cat_write_answer_function ) p_cat_write_answer_function( md_answer_buffer, 4u );
+
+  // Call the callback function to set the mode
+  void ( *set_trx_mode )( uint8_t ) = callbacks.set_trx_mode;
+  if ( set_trx_mode ) set_trx_mode( cat_MODE );
 }
 
-static void Command_FA_Query( const uint8_t* )
+// read mode
+static void handle_MD_query_mode( const uint8_t* )
+{
+  char md_answer_buffer[ 4u ] = { 'M', 'D', '0', ';' };
+  md_answer_buffer[ 2 ] = convert_to_char( cat_MODE );
+  void ( *p_cat_write_answer_function )( const char*, size_t ) = callbacks.answer_function;
+  if ( p_cat_write_answer_function ) p_cat_write_answer_function( md_answer_buffer, 4u );
+}
+
+static void handle_FA_query_frequency( const uint8_t* )
 {
   // Define the response buffer for FA; in the format FAxxxxxxxxxxx;
   char fa_answer_buffer[ 15u ] = { 'F', 'A' };
@@ -244,7 +271,7 @@ static void Command_FA_Query( const uint8_t* )
   }
 }
 
-static void Command_ID( const uint8_t* )
+static void handle_ID_query( const uint8_t* )
 {
   // Define the response for the ID command
   const char id_response[] = { 'I', 'D', '0', '1', '9', ';' };
@@ -257,21 +284,23 @@ static void Command_ID( const uint8_t* )
 }
 
 // Command definitions
-const uint8_t CMD_IF[] = { 'I', 'F', ';' };
-const uint8_t CMD_FA_SET[] = { 'F', 'A' };         // FAxxxxxxxxxxx for setting frequency
-const uint8_t CMD_FA_QUERY[] = { 'F', 'A', ';' };  // FA; for querying frequency
-const uint8_t CMD_ID[] = { 'I', 'D', ';' };
-const uint8_t CMD_MD[] = { 'M', 'D', ';' };
+static const uint8_t CMD_IF[] = { 'I', 'F', ';' };
+static const uint8_t CMD_FA_SET[] = { 'F', 'A' };         // FAxxxxxxxxxxx for setting frequency
+static const uint8_t CMD_FA_QUERY[] = { 'F', 'A', ';' };  // FA; for querying frequency
+static const uint8_t CMD_ID[] = { 'I', 'D', ';' };
+static const uint8_t CMD_MD_SET[] = { 'M', 'D' };  // MDx for setting mode
+static const uint8_t CMD_MD_QUERY[] = { 'M', 'D', ';' };
 
 static commands_table_t command_table_release[] = {
-  { CMD_IF, 3, Command_IF, 0 },              //
-  { CMD_FA_SET, 2, Command_FA_Set, 12 },     //
-  { CMD_FA_QUERY, 3, Command_FA_Query, 0 },  //
-  { CMD_ID, 3, Command_ID, 0 },              //
-  { CMD_MD, 3, Command_MD, 0 }               //
+  { CMD_IF, 3, handle_IF_query, 0 },                  //
+  { CMD_FA_SET, 2, handle_FA_set_frequency, 12 },     //
+  { CMD_FA_QUERY, 3, handle_FA_query_frequency, 0 },  //
+  { CMD_ID, 3, handle_ID_query, 0 },                  //
+  { CMD_MD_SET, 2, handle_MD_set_mode, 2 },           //
+  { CMD_MD_QUERY, 3, handle_MD_query_mode, 0 }        //
 };
 
-#define COMMAND_TABLE_SIZE 5
+#define COMMAND_TABLE_SIZE 6u
 
 // Function to compare a command in the buffer with a given command template
 // Parameters:
@@ -368,6 +397,7 @@ void cat_init( const CAT_T* p_init_struct )
 {
   callbacks.answer_function = p_init_struct->answer_function;
   callbacks.set_frequency_vfo_a = p_init_struct->set_frequency_vfo_a;
+  callbacks.set_trx_mode = p_init_struct->set_trx_mode;
 }
 
 #if defined( TESTS )

@@ -4,6 +4,8 @@
 #include <libcat.h>
 #include <tests/if_tests.h>
 
+#define CAT_CMD_MAX_LENGTH 20u  // Maximum length of the command buffer
+
 // Mock variables for capturing the test state
 static char test_answer_buffer[ CAT_CMD_MAX_LENGTH ];
 static uint8_t mock_answer_called = 0;
@@ -76,45 +78,45 @@ static void test_IF_command_response( void )
 
   // Expected response buffer for the IF command
   const char expected_response[] = {
-    'I',   //  0
-    'F',   //  1
-    '0',   //  2
-    '0',   //  3
-    '0',   //  4
-    '1',   //  5
-    '4',   //  6
-    '2',   //  7
-    '5',   //  8
-    '0',   //  9
-    '0',   // 10
-    '0',   // 11
-    '0',   // 12
-    '0',   // 13
-    '0',   // 14
-    '0',   // 15
-    '0',   // 16
-    ' ',   // 17 Placeholder space
-    '0',   // 18 Placeholder for RIT/XIT offset
-    '0',   // 19
-    '0',   // 20
-    '0',   // 21
-    '0',   // 22 Placeholder for additional RIT/XIT parameters
-    '0',   // 23
-    '0',   // 24
-    '0',   // 25
-    '0',   // 26
-    '0',   // 27
-    '0',   // 28 Placeholder for other parameters (P4–P13)
-    '0',   // 29
-    '0',   // 30
-    '0',   // 31
-    '0',   // 32
-    '0',   // 33
-    '0',   // 34
-    '0',   // 35
-    '0',   // 36
-    ';'    // 37 Termination character
-};
+    'I',  //  0
+    'F',  //  1
+    '0',  //  2
+    '0',  //  3
+    '0',  //  4
+    '1',  //  5
+    '4',  //  6
+    '2',  //  7
+    '5',  //  8
+    '0',  //  9
+    '0',  // 10
+    '0',  // 11
+    '0',  // 12
+    '0',  // 13
+    '0',  // 14
+    '0',  // 15
+    '0',  // 16
+    ' ',  // 17 Placeholder space
+    '0',  // 18 Placeholder for RIT/XIT offset
+    '0',  // 19
+    '0',  // 20
+    '0',  // 21
+    '0',  // 22 Placeholder for additional RIT/XIT parameters
+    '0',  // 23
+    '0',  // 24
+    '0',  // 25
+    '0',  // 26
+    '0',  // 27
+    '0',  // 28 Placeholder for other parameters (P4–P13)
+    '0',  // 29
+    '0',  // 30
+    '0',  // 31
+    '0',  // 32
+    '0',  // 33
+    '0',  // 34
+    '0',  // 35
+    '0',  // 36
+    ';'   // 37 Termination character
+  };
 
   // Verify the response buffer and callback invocation for the IF command
   TEST_ASSERT_TRUE( mock_answer_called );

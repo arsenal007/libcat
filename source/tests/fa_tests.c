@@ -4,6 +4,8 @@
 #include <libcat.h>  // Include your header file for cat_receive_cmd and cat_init
 #include <tests/fa_tests.h>
 
+#define CAT_CMD_MAX_LENGTH 20u  // Maximum length of the command buffer
+
 // Mock callback functions and test variables
 static char test_answer_buffer[ CAT_CMD_MAX_LENGTH ];
 static uint32_t test_vfo_a_frequency = 0;

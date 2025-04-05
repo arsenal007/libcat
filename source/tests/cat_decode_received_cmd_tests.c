@@ -4,6 +4,9 @@
 #include <libcat.h>  // Include your header file for cat_receive_cmd and cat_init
 #include <commands_table_t.h>
 #include <tests/cat_decode_received_cmd_no_params_tests.h>
+#include <tests/tests.h>  // Include your header file for test functions
+
+#define CAT_CMD_MAX_LENGTH 20u  // Maximum length of the command buffer
 
 // Add tests for test_cat_decode_received_cmd
 static uint8_t mock_handler_called = 0;
@@ -56,8 +59,6 @@ void test_cat_decode_received_cmd_no_params( void )
   // Since no parameters are expected, we do not need to verify mock_handler_params
 }
 
-
-
 void test_cat_decode_received_cmd_with_params( void )
 {
   // Command table for the test
@@ -107,7 +108,6 @@ void test_cat_decode_received_cmd_invalid_params( void )
   TEST_ASSERT_FALSE( mock_handler_called );
 }
 
-
 void test_cat_decode_received_cmd_unknown_command( void )
 {
   // Command table for the test
@@ -155,7 +155,6 @@ void test_cat_decode_received_cmd_empty_buffer( void )
   // Since the input buffer is empty, no commands can be matched, and the handler should not be invoked
   TEST_ASSERT_FALSE( mock_handler_called );
 }
-
 
 void run_cat_decode_received_cmd_no_params_tests( void )
 {

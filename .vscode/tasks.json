@@ -2,18 +2,48 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "[TESTS] CLEAN",
+            "label": "[TESTS] CMAKE",
             "type": "shell",
             "options": {
-                "cwd": "${workspaceRoot}\\build\\tests",
-                "env": {
-                    "PATH": "C:\\msys64\\mingw64\\bin"
-                }
+                "cwd": "${workspaceRoot}/build/tests"
+            },
+            "command": "cmake",
+            "args": [
+                "-DTESTS=ON",
+                "-G",
+                "Ninja",
+                "-B",
+                "${workspaceRoot}/build/tests/",
+                "-S",
+                "${workspaceRoot}/source/"
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "[TESTS] BUILD",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}/build/tests"
             },
             "command": "cmake",
             "args": [
                 "--build",
-                "\"${workspaceRoot}\\build\\tests\"",
+                "${workspaceRoot}/build/tests/"
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "[TESTS] CLEAN",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}/build/tests"
+            },
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceRoot}/build/tests/",
                 "--target",
                 "clean"
             ],
@@ -24,76 +54,11 @@
             "label": "[TESTS] RUN",
             "type": "shell",
             "options": {
-                "cwd": "${workspaceRoot}\\build\\tests",
-                "env": {
-                    "PATH": "C:\\msys64\\mingw64\\bin"
-                }
+                "cwd": "${workspaceRoot}/build/tests"
             },
             "command": "ctest",
             "args": [
                 "--output-on-failure"
-            ],
-            "problemMatcher": [],
-            "group": "build"
-        },
-        {
-            "label": "[TESTS] BUILD",
-            "type": "shell",
-            "options": {
-                "cwd": "${workspaceRoot}\\build\\tests",
-                "env": {
-                    "PATH": "C:\\msys64\\mingw64\\bin"
-                }
-            },
-            "command": "cmake",
-            "args": [
-                "--build",
-                "\"${workspaceRoot}\\build\\tests\""
-            ],
-            "problemMatcher": [],
-            "group": "build"
-        },
-        {
-            "label": "[TESTS] CMAKE",
-            "type": "shell",
-            "options": {
-                "cwd": "${workspaceRoot}\\build\\tests",
-                "env": {
-                    "PATH": "C:\\msys64\\mingw64\\bin"
-                }
-            },
-            "command": "cmake",
-            "args": [
-                "-DTESTS=ON",
-                "-G",
-                "\"Ninja\"",
-                "-B",
-                "\"${workspaceRoot}\\build\\tests\"",
-                "-S",
-                "\"${workspaceRoot}\\source\""
-            ],
-            "problemMatcher": [],
-            "group": "build"
-        },
-        {
-            "label": "[ARM Cortex-M33, CLANG] CMAKE",
-            "type": "shell",
-            "options": {
-                "cwd": "${workspaceRoot}\\build\\clang_cortex_m33",
-                "env": {
-                    "PATH": "C:\\msys64\\mingw64\\bin"
-                }
-            },
-            "command": "cmake",
-            "args": [
-                "-DARM_CORTEX_M33=ON",
-                "-DUSE_CLANG=ON",
-                "-G",
-                "\"Ninja\"",
-                "-B",
-                "\"${workspaceRoot}\\build\\clang_cortex_m33\"",
-                "-S",
-                "\"${workspaceRoot}\\source\""
             ],
             "problemMatcher": [],
             "group": "build"
