@@ -168,7 +168,7 @@ static void handle_IF_query( const uint8_t* )
   cat_answer_buffer[ 26 ] = convert_to_char( 0 );        // P7 channel bank number
   cat_answer_buffer[ 27 ] = convert_to_char( 0 );        // P7 channel bank number
   cat_answer_buffer[ 28 ] = convert_to_char( 0 );        // P8 0: RX, 1: TX
-  cat_answer_buffer[ 29 ] = convert_to_char( 0 );        // P9 Operating mode. See MD commands for details
+  cat_answer_buffer[ 29 ] = convert_to_char( cat_MODE );        // P9 Operating mode. See MD commands for details
   cat_answer_buffer[ 30 ] = convert_to_char( 0 );        // P10 See FR and FT commands
   cat_answer_buffer[ 31 ] = convert_to_char( 0 );        // P11 Scan status. See SC command.
   cat_answer_buffer[ 32 ] = convert_to_char( 0 );        // P12 Split operation status. See SP command

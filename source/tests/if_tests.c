@@ -29,11 +29,25 @@ static void MockSetFrequencyCallback( uint32_t frequency )
   test_vfo_a_frequency = frequency;
 }
 
+static uint8_t mock_mode_set_called = 0;
+static uint8_t test_trx_mode = 0;
+
+// Mock implementation of the mode setting callback
+static void MockSetModeCallback( uint8_t mode )
+{
+  mock_mode_set_called = 1;
+  test_trx_mode = mode;
+}
+
 // Reset the mock state before each test
 static void ResetMocks( void )
 {
   memset( test_answer_buffer, 0, CAT_CMD_MAX_LENGTH );
   mock_answer_called = 0;
+  mock_frequency_set_called = 0;
+  test_vfo_a_frequency = 0;
+  mock_mode_set_called = 0;
+  test_trx_mode = 0;
 }
 
 // Test: IF command provides correct response (focus on frequency reporting)
@@ -44,7 +58,8 @@ static void test_IF_command_response( void )
   // Initialize the CAT system with the mock callback
   CAT_T init_struct = {
     .answer_function = MockAnswerCallback,
-    .set_frequency_vfo_a = MockSetFrequencyCallback  // Required for FA command
+    .set_frequency_vfo_a = MockSetFrequencyCallback,
+    .set_trx_mode = MockSetModeCallback  // Required for MD command
   };
   cat_init( &init_struct );
 
@@ -68,10 +83,16 @@ static void test_IF_command_response( void )
   TEST_ASSERT_TRUE( mock_frequency_set_called );
   TEST_ASSERT_EQUAL_UINT32( 14250000, test_vfo_a_frequency );
 
+  // Simulate sending the MD command to set the mode
+  cat_receive_cmd( 'M' );
+  cat_receive_cmd( 'D' );
+  cat_receive_cmd( '6' );  // Set mode to FSK (P1 = 6)
+  cat_receive_cmd( ';' );
+
   // Reset the mock state to test the IF command
   ResetMocks();
 
-  // Simulate sending the IF command to query the current frequency
+  // Simulate sending the IF command to query the current frequency and mode
   cat_receive_cmd( 'I' );
   cat_receive_cmd( 'F' );
   cat_receive_cmd( ';' );
@@ -107,7 +128,7 @@ static void test_IF_command_response( void )
     '0',  // 26
     '0',  // 27
     '0',  // 28 Placeholder for other parameters (P4–P13)
-    '0',  // 29
+    '6',  // 29 P9: Operating mode (FSK)
     '0',  // 30
     '0',  // 31
     '0',  // 32
@@ -121,6 +142,7 @@ static void test_IF_command_response( void )
   // Verify the response buffer and callback invocation for the IF command
   TEST_ASSERT_TRUE( mock_answer_called );
   TEST_ASSERT_EQUAL_MEMORY( expected_response, test_answer_buffer, sizeof( expected_response ) );
+
 }
 
 void run_if_tests( void )
