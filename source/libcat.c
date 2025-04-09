@@ -34,6 +34,9 @@ static int8_t cat_XIT = 0;
 
 static uint8_t cat_MODE = 2;  // 1: LSB, 2: USB, 3: CW, 4: FM, 5: AM, 6: FSK, 7: CR-R, 8: Reserved, 9: FSK-R
 
+static uint8_t cat_key_speed_decades_words_per_minute = 1;
+static uint8_t cat_key_speed_units_words_per_minute = 0;
+
 static int cat_rit_frequency_10kHz = 0;
 static int cat_rit_frequency_1kHz = 0;
 static int cat_rit_frequency_100Hz = 0;
@@ -162,20 +165,20 @@ static void handle_IF_query( const uint8_t* )
     cat_answer_buffer[ 22 ] = convert_to_char( 0 );
   }
 
-  cat_answer_buffer[ 23 ] = convert_to_char( cat_RIT );  // P4 0: RIT OFF, 1: RIT ON
-  cat_answer_buffer[ 24 ] = convert_to_char( cat_XIT );  // P5 0: XIT OFF, 1: XIT ON
-  cat_answer_buffer[ 25 ] = convert_to_char( 0 );        // P6 channel bank number
-  cat_answer_buffer[ 26 ] = convert_to_char( 0 );        // P7 channel bank number
-  cat_answer_buffer[ 27 ] = convert_to_char( 0 );        // P7 channel bank number
-  cat_answer_buffer[ 28 ] = convert_to_char( 0 );        // P8 0: RX, 1: TX
-  cat_answer_buffer[ 29 ] = convert_to_char( cat_MODE );        // P9 Operating mode. See MD commands for details
-  cat_answer_buffer[ 30 ] = convert_to_char( 0 );        // P10 See FR and FT commands
-  cat_answer_buffer[ 31 ] = convert_to_char( 0 );        // P11 Scan status. See SC command.
-  cat_answer_buffer[ 32 ] = convert_to_char( 0 );        // P12 Split operation status. See SP command
-  cat_answer_buffer[ 33 ] = convert_to_char( 0 );        // P13 0: OFF, 1: TONE, 2: CTCSS, 3: DCS
-  cat_answer_buffer[ 34 ] = convert_to_char( 0 );        // P14 Tone frequency. See TN command.
-  cat_answer_buffer[ 35 ] = convert_to_char( 0 );        // P14 Tone frequency. See TN command.
-  cat_answer_buffer[ 36 ] = convert_to_char( 0 );        // P15 Shift status. See OS command
+  cat_answer_buffer[ 23 ] = convert_to_char( cat_RIT );   // P4 0: RIT OFF, 1: RIT ON
+  cat_answer_buffer[ 24 ] = convert_to_char( cat_XIT );   // P5 0: XIT OFF, 1: XIT ON
+  cat_answer_buffer[ 25 ] = convert_to_char( 0 );         // P6 channel bank number
+  cat_answer_buffer[ 26 ] = convert_to_char( 0 );         // P7 channel bank number
+  cat_answer_buffer[ 27 ] = convert_to_char( 0 );         // P7 channel bank number
+  cat_answer_buffer[ 28 ] = convert_to_char( 0 );         // P8 0: RX, 1: TX
+  cat_answer_buffer[ 29 ] = convert_to_char( cat_MODE );  // P9 Operating mode. See MD commands for details
+  cat_answer_buffer[ 30 ] = convert_to_char( 0 );         // P10 See FR and FT commands
+  cat_answer_buffer[ 31 ] = convert_to_char( 0 );         // P11 Scan status. See SC command.
+  cat_answer_buffer[ 32 ] = convert_to_char( 0 );         // P12 Split operation status. See SP command
+  cat_answer_buffer[ 33 ] = convert_to_char( 0 );         // P13 0: OFF, 1: TONE, 2: CTCSS, 3: DCS
+  cat_answer_buffer[ 34 ] = convert_to_char( 0 );         // P14 Tone frequency. See TN command.
+  cat_answer_buffer[ 35 ] = convert_to_char( 0 );         // P14 Tone frequency. See TN command.
+  cat_answer_buffer[ 36 ] = convert_to_char( 0 );         // P15 Shift status. See OS command
   cat_answer_buffer[ 37 ] = ';';
   void ( *p_cat_write_answer_function )( const char*, size_t ) = callbacks.answer_function;
   if ( p_cat_write_answer_function ) p_cat_write_answer_function( cat_answer_buffer, 38u );
@@ -213,6 +216,15 @@ static void handle_FA_set_frequency( const uint8_t* frequency_text )
   if ( set_new_frequency_vfo_a ) set_new_frequency_vfo_a( vfo_a_frequency );
 }
 
+// read mode
+static void handle_MD_query_mode( const uint8_t* )
+{
+  char md_answer_buffer[ 4u ] = { 'M', 'D', '0', ';' };
+  md_answer_buffer[ 2 ] = convert_to_char( cat_MODE );
+  void ( *p_cat_write_answer_function )( const char*, size_t ) = callbacks.answer_function;
+  if ( p_cat_write_answer_function ) p_cat_write_answer_function( md_answer_buffer, 4u );
+}
+
 static void handle_MD_set_mode( const uint8_t* mode_text )
 {
   // Convert the mode text to an integer value
@@ -222,26 +234,11 @@ static void handle_MD_set_mode( const uint8_t* mode_text )
   // Set the mode based on the received value
   cat_MODE = number;
 
-  // Prepare the response buffer
-  char md_answer_buffer[ 4u ] = { 'M', 'D', '0', ';' };
-  md_answer_buffer[ 2 ] = convert_to_char( cat_MODE );
-
-  // Send the response using the callback function
-  void ( *p_cat_write_answer_function )( const char*, size_t ) = callbacks.answer_function;
-  if ( p_cat_write_answer_function ) p_cat_write_answer_function( md_answer_buffer, 4u );
-
   // Call the callback function to set the mode
   void ( *set_trx_mode )( uint8_t ) = callbacks.set_trx_mode;
   if ( set_trx_mode ) set_trx_mode( cat_MODE );
-}
 
-// read mode
-static void handle_MD_query_mode( const uint8_t* )
-{
-  char md_answer_buffer[ 4u ] = { 'M', 'D', '0', ';' };
-  md_answer_buffer[ 2 ] = convert_to_char( cat_MODE );
-  void ( *p_cat_write_answer_function )( const char*, size_t ) = callbacks.answer_function;
-  if ( p_cat_write_answer_function ) p_cat_write_answer_function( md_answer_buffer, 4u );
+  handle_MD_query_mode( NULL );  // Send the response for the MD command
 }
 
 static void handle_FA_query_frequency( const uint8_t* )
@@ -283,13 +280,59 @@ static void handle_ID_query( const uint8_t* )
   }
 }
 
+static void handle_KS_query_key_speed( const uint8_t* )
+{
+  // Define the response buffer for KS; in the format KS0xx;
+  char ks_answer_buffer[ 6u ] = { 'K', 'S', '0', '0', '0', ';' };
+
+  // Populate the key speed values into the response buffer
+  ks_answer_buffer[ 3 ] = convert_to_char( cat_key_speed_decades_words_per_minute );
+  ks_answer_buffer[ 4 ] = convert_to_char( cat_key_speed_units_words_per_minute );
+
+  // Write the response using the callback
+  void ( *p_cat_write_answer_function )( const char*, size_t ) = callbacks.answer_function;
+  if ( p_cat_write_answer_function ) p_cat_write_answer_function( ks_answer_buffer, 6u );
+}
+
+static void handle_KS_set_key_speed( const uint8_t* ks_text )
+{
+  // first character by TS-2000 is always 0
+  {
+    int number = symbol_to_int( ks_text[ 0 ] );
+    if ( number != 0 ) return;  // Invalid character, stop processing
+  }
+
+  {
+    int number = symbol_to_int( ks_text[ 1 ] );
+    if ( ( number < 1 ) || ( number > 6 ) ) return;   // Invalid character, stop processing
+    cat_key_speed_decades_words_per_minute = number;  // Set the key speed in decades of seconds
+  }
+
+  {
+    int number = symbol_to_int( ks_text[ 2 ] );
+    if ( ( number < 0 ) || ( number > 9 ) ) return;  // Invalid character, stop processing
+    cat_key_speed_units_words_per_minute = number;   // Set the key speed in units of seconds
+  }
+
+  uint8_t key_speed = cat_key_speed_decades_words_per_minute * 10 + cat_key_speed_units_words_per_minute;
+
+  // Call the callback function to set key speed
+  void ( *set_key_speed_words_per_minute )( uint8_t ) = callbacks.set_key_speed_words_per_minute;
+  if ( set_key_speed_words_per_minute ) set_key_speed_words_per_minute( key_speed );
+
+  // Send the response for the KS command
+  handle_KS_query_key_speed( NULL );
+}
+
 // Command definitions
 static const uint8_t CMD_IF[] = { 'I', 'F', ';' };
 static const uint8_t CMD_FA_SET[] = { 'F', 'A' };         // FAxxxxxxxxxxx for setting frequency
 static const uint8_t CMD_FA_QUERY[] = { 'F', 'A', ';' };  // FA; for querying frequency
 static const uint8_t CMD_ID[] = { 'I', 'D', ';' };
-static const uint8_t CMD_MD_SET[] = { 'M', 'D' };  // MDx for setting mode
+static const uint8_t CMD_MD_SET[] = { 'M', 'D' };  // MDx; for setting mode
 static const uint8_t CMD_MD_QUERY[] = { 'M', 'D', ';' };
+static const uint8_t CMD_KS_SET[] = { 'K', 'S' };  // KSxxx; for setting key speed
+static const uint8_t CMD_KS_QUERY[] = { 'K', 'S', ';' };
 
 static commands_table_t command_table_release[] = {
   { CMD_IF, 3, handle_IF_query, 0 },                  //
@@ -297,10 +340,12 @@ static commands_table_t command_table_release[] = {
   { CMD_FA_QUERY, 3, handle_FA_query_frequency, 0 },  //
   { CMD_ID, 3, handle_ID_query, 0 },                  //
   { CMD_MD_SET, 2, handle_MD_set_mode, 2 },           //
-  { CMD_MD_QUERY, 3, handle_MD_query_mode, 0 }        //
+  { CMD_MD_QUERY, 3, handle_MD_query_mode, 0 },       //
+  { CMD_KS_SET, 2, handle_KS_set_key_speed, 3 },      //
+  { CMD_KS_QUERY, 3, handle_KS_query_key_speed, 0 }   //
 };
 
-#define COMMAND_TABLE_SIZE 6u
+#define COMMAND_TABLE_SIZE 8u
 
 // Function to compare a command in the buffer with a given command template
 // Parameters:
