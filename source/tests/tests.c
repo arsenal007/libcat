@@ -7,6 +7,7 @@
 #include <tests/cat_decode_received_cmd_no_params_tests.h>
 #include <tests/set_tests.h>
 #include <tests/if_tests.h>
+#include <tests/ks_tests.h>
 #include <tests/tests.h>
 
 #define CAT_CMD_MAX_LENGTH 20u  // Maximum length of the command buffer
@@ -177,6 +178,7 @@ int main( void )
   run_fa_tests();
   run_if_tests();
   run_md_tests();
+  run_ks_tests();
 
   return UNITY_END();
 }

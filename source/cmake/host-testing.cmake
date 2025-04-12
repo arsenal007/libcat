@@ -21,6 +21,7 @@ target_sources(cat_tests PRIVATE
     ${CMAKE_SOURCE_DIR}/tests/if_tests.c
     ${CMAKE_SOURCE_DIR}/tests/id_tests.c
     ${CMAKE_SOURCE_DIR}/tests/md_tests.c
+    ${CMAKE_SOURCE_DIR}/tests/ks_tests.c
 )
 
 # Define macros for testing

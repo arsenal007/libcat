@@ -315,10 +315,14 @@ static void handle_KS_set_key_speed( const uint8_t* ks_text )
   }
 
   uint8_t key_speed = cat_key_speed_decades_words_per_minute * 10 + cat_key_speed_units_words_per_minute;
-
   // Call the callback function to set key speed
+
   void ( *set_key_speed_words_per_minute )( uint8_t ) = callbacks.set_key_speed_words_per_minute;
-  if ( set_key_speed_words_per_minute ) set_key_speed_words_per_minute( key_speed );
+  
+  if ( set_key_speed_words_per_minute )
+  {
+    set_key_speed_words_per_minute( key_speed );
+  }
 
   // Send the response for the KS command
   handle_KS_query_key_speed( NULL );
@@ -341,7 +345,7 @@ static commands_table_t command_table_release[] = {
   { CMD_ID, 3, handle_ID_query, 0 },                  //
   { CMD_MD_SET, 2, handle_MD_set_mode, 2 },           //
   { CMD_MD_QUERY, 3, handle_MD_query_mode, 0 },       //
-  { CMD_KS_SET, 2, handle_KS_set_key_speed, 3 },      //
+  { CMD_KS_SET, 2, handle_KS_set_key_speed, 4 },      //
   { CMD_KS_QUERY, 3, handle_KS_query_key_speed, 0 }   //
 };
 
@@ -443,6 +447,7 @@ void cat_init( const CAT_T* p_init_struct )
   callbacks.answer_function = p_init_struct->answer_function;
   callbacks.set_frequency_vfo_a = p_init_struct->set_frequency_vfo_a;
   callbacks.set_trx_mode = p_init_struct->set_trx_mode;
+  callbacks.set_key_speed_words_per_minute = p_init_struct->set_key_speed_words_per_minute;
 }
 
 #if defined( TESTS )
